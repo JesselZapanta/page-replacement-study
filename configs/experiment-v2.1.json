@@ -1,0 +1,48 @@
+{
+  "config_version": 3,
+  "label": "experiment-v2.1",
+  "status": "APPROVED - amendment confirmed by the researcher on 2026-11-27. Supersedes configs/experiment-v2.json.",
+  "amendment": {
+    "supersedes": "configs/experiment-v2.json",
+    "date": "2026-11-27",
+    "approved_by": "researcher (project owner)",
+    "reason": "Address the review findings: runs must actually execute in Docker, algorithm order must be rotated to avoid timing confound, mixed-trace segments must reset state, git provenance must be recorded, and inference must use ML for the interaction test plus per-condition paired analysis.",
+    "changes": [
+      "execution.mode = docker; Docker memory limit and CPU allocation are now applied to every run",
+      "Algorithm order rotated by (workload_index + repetition + frame_index) mod 3 and recorded per run",
+      "Generator v2.1: mixed segments reset their sequential/looping state at segment boundaries",
+      "Git commit and tag recorded in every raw record",
+      "Inference: ML likelihood-ratio test, per-condition paired tests, one Holm family, effective-n boundary rule"
+    ],
+    "unchanged": [
+      "Algorithms, workloads, frame capacities, trace length, repetitions, seed rule, outcome definitions, image and resource limits"
+    ]
+  },
+  "algorithms": ["fifo", "lru", "clock"],
+  "workloads": ["sequential", "random", "looping", "mixed", "locality"],
+  "frames": [3, 5, 8, 10, 15],
+  "trace_length": 100000,
+  "repetitions": 10,
+  "base_seed": 20261126,
+  "seed_rule": "seed = base_seed + workload_index * 1000 + repetition (1-based)",
+  "run_order_rule": "rotate by (workload_index + repetition + frame_index) mod 3",
+  "trace_generation": {
+    "sequential": {"start_page": 0, "span": 10},
+    "random": {"start_page": 0, "span": 12},
+    "looping": {"start_page": 0, "span": 12, "loop_size": 8},
+    "mixed": {"start_page": 0, "span": 20, "loop_size": 8, "segment_length": 2000},
+    "locality": {"start_page": 0, "span": 40, "hot_set_size": 4, "hot_prob": 0.8}
+  },
+  "execution": {
+    "mode": "docker",
+    "simulator": "build/simulator",
+    "docker_image": "page-replacement-study:latest",
+    "docker_memory_limit": "512m",
+    "docker_cpus": 1.0
+  },
+  "measurement": {
+    "timing": "CLOCK_MONOTONIC around the policy loop only; trace reading excluded",
+    "primary_outcome": "page_fault_rate_percent = simulated_page_faults / total_references * 100",
+    "os_fault_counters": false
+  }
+}

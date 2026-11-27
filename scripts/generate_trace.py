@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Deterministic memory-reference trace generator.
 
-Generation rules (version 2.0), all reproducible from seed + parameters:
+Generation rules (version 2.1), all reproducible from seed + parameters:
   sequential : page = (start_page + i) % span
   random     : page = random.Random(seed).randrange(span), one draw per reference
   looping    : page = (start_page + (i % loop_size)) % span
   mixed      : split into segments of `segment_length`; for each segment choose
-               sequential/random/looping with the same seeded RNG, using the
-               segment's global offset for the looping rule.
+               sequential/random/looping with the same seeded RNG and RESET the
+               pattern state at the segment boundary (v2.1): sequential and
+               looping both restart their local index at zero.
   locality   : with probability `hot_prob` draw from a hot set of
                `hot_set_size` pages (starting at start_page), otherwise draw
                uniformly from `span`; both decisions use the seeded RNG.
@@ -25,7 +26,7 @@ from pathlib import Path
 
 from common import utc_now
 
-GENERATOR_VERSION = "2.0"
+GENERATOR_VERSION = "2.1"
 
 WORKLOADS = ("sequential", "random", "looping", "mixed", "locality")
 
@@ -79,12 +80,11 @@ def generate(workload, length, seed, params=None):
         pattern = rng.choice(("sequential", "random", "looping"))
         seg_len = min(segment, length - offset)
         if pattern == "sequential":
-            refs.extend((start + offset + j) % span for j in range(seg_len))
+            refs.extend((start + j) % span for j in range(seg_len))
         elif pattern == "random":
             refs.extend(rng.randrange(span) for _ in range(seg_len))
         else:
-            refs.extend((start + (offset + j) % loop_size) % span
-                        for j in range(seg_len))
+            refs.extend((start + (j % loop_size)) % span for j in range(seg_len))
     return refs
 
 

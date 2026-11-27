@@ -28,6 +28,26 @@ def git_commit():
         return "git-unavailable"
 
 
+def git_describe():
+    try:
+        proc = subprocess.run(["git", "describe", "--tags", "--exact-match", "HEAD"],
+                              cwd=REPO_ROOT, capture_output=True, text=True)
+        return proc.stdout.strip() if proc.returncode == 0 else None
+    except FileNotFoundError:
+        return None
+
+
+def docker_digest(image):
+    try:
+        proc = subprocess.run(
+            ["docker", "image", "inspect", image,
+             "--format", "{{index .RepoDigests 0}}"],
+            cwd=REPO_ROOT, capture_output=True, text=True)
+        return proc.stdout.strip() if proc.returncode == 0 else None
+    except FileNotFoundError:
+        return None
+
+
 def resolve_simulator(spec):
     path = Path(spec)
     return path if path.is_absolute() else REPO_ROOT / path
@@ -84,6 +104,10 @@ def main():
     trace_dir.mkdir(parents=True, exist_ok=True)
 
     started = utc_now()
+    commit_hash = git_commit()
+    commit_tag = git_describe()
+    image_digest = (docker_digest(exec_cfg["docker_image"])
+                    if exec_cfg.get("mode") == "docker" else None)
     algorithms = config["algorithms"]
     frames_list = config["frames"]
     workloads = config["workloads"]
@@ -110,8 +134,10 @@ def main():
                            indent=2) + "\n", encoding="utf-8")
             trace_hash = sha256_file(trace_path)
 
-            for frames in frames_list:
-                for algorithm in algorithms:
+            for frame_index, frames in enumerate(frames_list):
+                shift = (workload_index + repetition + frame_index) % len(algorithms)
+                ordered_algorithms = algorithms[shift:] + algorithms[:shift]
+                for position, algorithm in enumerate(ordered_algorithms, start=1):
                     done += 1
                     run_id = f"{label}-{algorithm}-{workload}-f{frames}-r{repetition}"
                     cmd = run_command(config, simulator, trace_path,
@@ -129,8 +155,13 @@ def main():
                                          if exec_cfg.get("mode") == "docker"
                                          else None),
                         "docker_memory_limit": exec_cfg.get("docker_memory_limit"),
-                        "git_commit": git_commit(),
+                        "docker_image_digest": image_digest,
+                        "git_commit": commit_hash,
+                        "git_tag": commit_tag,
                         "algorithm": algorithm,
+                        "algorithm_order": list(ordered_algorithms),
+                        "run_order_position": position,
+                        "run_order_rule": "rotate by (workload_index + repetition + frame_index) mod 3",
                         "workload": workload,
                         "frames": frames,
                         "trace_path": str(trace_path.relative_to(REPO_ROOT)),
@@ -164,9 +195,13 @@ def main():
         "is_demo": is_demo,
         "started_utc": started,
         "finished_utc": utc_now(),
-        "config_path": str(config_path.relative_to(REPO_ROOT)),
+        "config_path": (str(config_path.relative_to(REPO_ROOT))
+                        if config_path.is_relative_to(REPO_ROOT) else str(config_path)),
         "config": config,
-        "git_commit": git_commit(),
+        "git_commit": commit_hash,
+        "git_tag": commit_tag,
+        "docker_image_digest": image_digest,
+        "run_order_rule": "rotate by (workload_index + repetition + frame_index) mod 3",
         "simulator": str(simulator.relative_to(REPO_ROOT)),
         "planned_runs": total,
         "completed_runs": sum(1 for r in records if r["status"] == "ok"),

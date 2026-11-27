@@ -243,15 +243,15 @@ frame capacity, so no eviction choice is required and the algorithms coincide.
 | 10 | 22.206 (0.214) | 15.212 (0.156) | 16.757 (0.191) |
 | 15 | 16.253 (0.166) | 12.449 (0.127) | 12.625 (0.131) |
 
-### Execution time, locality workload (mean ms)
+### Execution time, locality workload (mean ms; 1 ms = 1,000,000 ns)
 
 | Frames | FIFO | LRU | Clock |
 |---|---|---|---|
-| 3 | 860.7 | 878.9 | 1053.5 |
-| 5 | 1113.4 | 1101.9 | 1295.9 |
-| 8 | 1392.5 | 1319.6 | 1430.1 |
-| 10 | 1458.7 | 1363.6 | 1526.3 |
-| 15 | 1680.3 | 1503.3 | 1695.5 |
+| 3 | 0.861 | 0.879 | 1.053 |
+| 5 | 1.113 | 1.102 | 1.296 |
+| 8 | 1.392 | 1.320 | 1.430 |
+| 10 | 1.459 | 1.364 | 1.526 |
+| 15 | 1.680 | 1.503 | 1.696 |
 
 Full timing values (ns, SD, throughput) are in `descriptive_stats.csv` and
 `descriptive_summary.json`. Timing reflects scan/loop overhead under the
