@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "generated_at_utc": "2026-11-27T02:00:55+00:00",
+  "status": "approved model, executed",
+  "approval_source": "/home/jessel_zapanta/projects/page-replacement-study/results/experiment-v2.1/amendment.json",
+  "input": "/home/jessel_zapanta/projects/page-replacement-study/results/experiment-v2.1/raw/results.jsonl",
+  "primary_method": "per-condition paired analysis on distinct traces, with Holm correction across all tested comparisons",
+  "primary_formula_supplementary": "page_fault_rate_percent ~ C(algorithm, Treatment(reference=\"fifo\")) * C(workload, Treatment(reference=\"sequential\")) * C(frames)",
+  "secondary_formula_supplementary": "log_time_ns ~ C(algorithm, Treatment(reference=\"fifo\")) * C(workload, Treatment(reference=\"sequential\")) * C(frames)",
+  "random_effects_supplementary": "intercept by trace_id (workload x repetition)",
+  "interaction_test": "likelihood ratio between full and additive ML fits",
+  "boundary_rule": "cells whose repetitions share one trace hash are excluded from inference (effective n=1)",
+  "algorithm_reference": "fifo",
+  "workload_reference": "sequential",
+  "frames_treatment": "categorical",
+  "versions": {
+    "numpy": "2.5.5",
+    "pandas": "3.1.1",
+    "scipy": "1.18.1",
+    "statsmodels": "0.15.0"
+  },
+  "interpretation": "Outputs are scoped to the approved v2.1 protocol; see docs/decision-log.md."
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "approved-amendment",
+  "date": "2026-11-27",
+  "approved_by": "researcher (project owner)",
+  "supersedes": "configs/experiment-v2.json",
+  "config_path": "configs/experiment-v2.1.json",
+  "config_sha256_at_approval": "806c22fc1f63fe6affffe6138e13fca9c06c08e279288e82f69c55f8a3dd4060",
+  "dataset": "results/experiment-v2.1/raw/results.jsonl",
+  "dataset_sha256_at_approval": "85e9bac5e6f1198ff60200ee1fc4b2a667c4e27829afc8f6c255f218186d7f1e",
+  "dataset_runs": 750,
+  "dataset_failures": 0,
+  "git_commit_of_code": "a4f37d6b59dc6a539523231e648c5f94991bdcde",
+  "git_tag_of_code": "v2.1.2",
+  "docker_image": "page-replacement-study:latest",
+  "docker_image_digest": "sha256:0430529978c7517adaee53cb47234fa94c181d7977b7ea7e03339a5f264bab6f",
+  "docker_memory_limit": "512m",
+  "docker_cpus": 1.0,
+  "order_rotation": "3 distinct orders observed; each condition records algorithm_order and run_order_position",
+  "changes": [
+    "All 750 runs executed inside Docker with memory/CPU limits applied",
+    "Algorithm order rotated by (workload_index + repetition + frame_index) mod 3",
+    "Generator v2.1 resets mixed-segment sequential/looping state",
+    "Git commit and tag recorded in every raw record",
+    "Inference uses ML likelihood-ratio and per-condition paired analysis with one Holm family"
+  ],
+  "retroactive_provenance_note": "Earlier v1 and v2 datasets were produced before the repository was initialized and carry git_commit='not-a-git-repo'. They are superseded; no commit identifies the code that produced them.",
+  "note": "OPT baseline deferred. Random is treated as a null/boundary condition; locality is a skewed hot-set workload, not alternating phases."
+}

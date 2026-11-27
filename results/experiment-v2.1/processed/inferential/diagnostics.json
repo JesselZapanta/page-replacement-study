@@ -1,0 +1,29 @@
+{
+  "n_runs": 750,
+  "n_traces": 50,
+  "primary_inference": "per-condition paired t-tests on independent traces; Holm across all tested cell/pair comparisons",
+  "tested_rate_comparisons": 42,
+  "boundary_rate_comparisons": 33,
+  "tested_timing_comparisons": 45,
+  "fit_methods": {
+    "rate_model_reml": "default (BFGS)",
+    "timing_model_reml": "default (BFGS)",
+    "rate_model_ml": "default (BFGS)",
+    "additive_model_ml": "default (BFGS)"
+  },
+  "converged": {
+    "rate_reml": true,
+    "timing_reml": true,
+    "rate_ml": true,
+    "additive_ml": true
+  },
+  "likelihood_ratio_interactions_ML": {
+    "statistic": 3440.384623589908,
+    "df": 64,
+    "p_value": 0.0,
+    "note": "ML fits; REML is invalid for comparing different fixed effects"
+  },
+  "residual_shapiro_w": 0.5665843817811644,
+  "residual_shapiro_p": 1.9113874698704166e-39,
+  "note": "Single-variance mixed model is a poor fit; primary inference uses per-condition variances."
+}

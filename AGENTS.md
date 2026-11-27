@@ -2,7 +2,7 @@
 
 ## Orientation
 - Experimental research project, not an algorithm demo. `README.md` is the authoritative design brief — read it (especially §2, §11, §12) before changing code or architecture.
-- Current state: simulator, `Makefile`, known-answer tests, trace generator, experiment runner, analyzer, inference script, Docker files and configs exist; README §14 lists exact commands. The current approved protocol is `configs/experiment-v2.json` (v1 superseded); data is in `results/experiment-v2/`, including `processed/inferential/`. `results/proposed-full-experiment/` is the retained v1 run and `results/demo/` is sample data.
+- Current state: simulator, `Makefile`, known-answer tests, trace generator, experiment runner, analyzer, inference script, Docker files and configs exist; README §14 lists exact commands. The current approved protocol is `configs/experiment-v2.1.json`: runs execute inside Docker with rotated algorithm order, generator v2.1 resets mixed-segment state, and every raw record carries the git commit/tag (tag `v2.1.2`). `results/experiment-v2.1/` is the corrected dataset; `results/experiment-v2/`, `results/proposed-full-experiment/` and `results/demo/` are superseded or sample data. Inference is per-condition paired analysis with an ML likelihood-ratio test, not the older pooled REML approach.
 - Implement in plain C and keep the three algorithms structurally comparable; no extra libraries or frameworks unless the project decision explicitly changes (README §11).
 
 ## Hard constraints

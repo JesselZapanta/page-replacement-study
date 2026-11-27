@@ -155,11 +155,13 @@ rules and parameters.
                                       and parameters
   -----------------------------------------------------------------------
 
-These values were approved on 2026-11-26 and then amended as v2 the same day
-(§12, `configs/experiment-v2.json`). The v2 pilot confirmed the settings now
-produce meaningful variation; the earlier saturation and the amendment are
-recorded in `docs/decision-log.md`. Any subsequent change must be documented
-in the experiment configuration and research log.
+These values were approved on 2026-11-26, amended as v2 the same day, and
+amended again as v2.1 on 2026-11-27 (§12, `configs/experiment-v2.1.json`).
+The v2 pilot confirmed the settings produce meaningful variation; v2.1 adds
+Docker execution, rotated run order, reset mixed segments and corrected
+inference. The full history is recorded in `docs/decision-log.md`. Any
+subsequent change must be documented in the experiment configuration and
+research log.
 
 ### Fair-comparison rules
 
@@ -459,11 +461,13 @@ When working in this repository, follow these instructions:
 ## 12. Decisions (confirmed)
 
 Baseline values were confirmed by the researcher on 2026-11-26 and used for
-the v1 run. They were amended the same day by `configs/experiment-v2.json`,
-which is the **current approved protocol** used for the reported run: added
-the `locality` workload and reduced spans/loop sizes; all other values below
-are unchanged. See `docs/decision-log.md`. The final inferential statistical
-model remains a separate approval item.
+the v1 run. They were amended the same day (v2) and again on 2026-11-27 by
+`configs/experiment-v2.1.json`, which is the **current approved protocol**:
+v2 added the `locality` workload and reduced spans; v2.1 executes in Docker
+with rotated algorithm order, resets mixed segments, records git provenance,
+and uses corrected inference. All other values below are unchanged. See
+`docs/decision-log.md`. OPT was deliberately deferred and is not part of this
+protocol.
 
 -   Final trace length: 100,000 references.
 -   Final number of repetitions: 10.
@@ -504,8 +508,9 @@ Decisions are recorded in `docs/decision-log.md`.
 -   [x] Create Dockerfile and experiment runner (image build and container run verified; see `docs/decision-log.md`).
 -   [ ] Conduct pilot experiment.
 -   [ ] Finalize statistical analysis plan.
--   [x] Run full experiment and analyze actual results (`results/proposed-full-experiment/`, v1; `results/experiment-v2/`, current).
--   [x] Amend saturated workload parameters and re-run (v2 approved 2026-11-26).
+-   [x] Run full experiment and analyze actual results (v1, v2, and current v2.1 in `results/experiment-v2.1/`).
+-   [x] Amend saturated workload parameters and re-run (v2, 2026-11-26).
+-   [x] Address review: Docker execution, rotated order, mixed reset, git provenance, corrected inference (v2.1, 2026-11-27).
 
 ## 14. Implementation quick reference (as built)
 
@@ -525,10 +530,10 @@ build/simulator --algorithm fifo --frames 5 \
 python3 scripts/generate_trace.py --workload random --length 100000 --seed 7 \
   --output traces/generated/random_s7.trace
 
-# Current approved experiment (v2), then descriptive summary
-python3 scripts/run_experiment.py --config configs/experiment-v2.json
-python3 scripts/analyze.py --input results/experiment-v2/raw/results.jsonl \
-  --output-dir results/experiment-v2/processed
+# Current approved experiment (v2.1, runs inside Docker), then descriptive summary
+python3 scripts/run_experiment.py --config configs/experiment-v2.1.json
+python3 scripts/analyze.py --input results/experiment-v2.1/raw/results.jsonl \
+  --output-dir results/experiment-v2.1/processed
 
 # Demo (sample data only)
 python3 scripts/run_experiment.py --config configs/demo.json
@@ -545,11 +550,11 @@ bash docker/build.sh
 bash docker/run-example.sh
 ```
 
--   `configs/experiment-v2.json` is the **current approved** protocol; `configs/experiment.json` is the superseded v1; `configs/demo.json` is a small sample-data config.
+-   `configs/experiment-v2.1.json` is the **current approved** protocol; `configs/experiment-v2.json` and `configs/experiment.json` are superseded; `configs/demo.json` is a small sample-data config.
 -   Raw run records go to `results/<label>/raw/results.jsonl`, the run manifest to `results/<label>/run_manifest.json`, traces plus generation metadata to `results/<label>/traces/`, and descriptive summaries to `results/<label>/processed/`.
 -   Invalid input exits non-zero: 2 bad arguments, 3 bad input, 4 simulation error, 5 output error.
 -   The image entrypoint is `/src/build/simulator`, so the Docker command omits the leading `./simulator` shown in the illustrative §8 example.
--   `scripts/infer.py` needs its statistical packages in `.venv/`; all other scripts run on system `python3`. Its specification and approval are in `results/experiment-v2/processed/inferential/model_spec.json`; outputs (pairwise contrasts, effect sizes, diagnostics) are in the same directory.
+-   `scripts/infer.py` needs its statistical packages in `.venv/`; all other scripts run on system `python3`. Its specification and outputs are in `results/experiment-v2.1/processed/inferential/`: per-condition paired results, boundary cells, ML interaction test and model summaries.
 -   `docs/manuscript-source.md` consolidates the verified design, results and statistics for manuscript drafting.
 -   `docs/decision-log.md` records approvals and remaining items. `results/demo/` is sample/test data, never a research finding.
 

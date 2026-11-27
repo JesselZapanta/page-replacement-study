@@ -1,0 +1,89 @@
+                                                                    Mixed Linear Model Regression Results
+==============================================================================================================================================================================
+Model:                                               MixedLM                                    Dependent Variable:                                    page_fault_rate_percent
+No. Observations:                                    750                                        Method:                                                REML                   
+No. Groups:                                          50                                         Scale:                                                 3.3210                 
+Min. group size:                                     15                                         Log-Likelihood:                                        -1509.8691             
+Max. group size:                                     15                                         Converged:                                             Yes                    
+Mean group size:                                     15.0                                                                                                                     
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                                                               Coef.  Std.Err.    z     P>|z|  [0.025   0.975]
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Intercept                                                                                                                     100.000    0.799  125.199 0.000   98.435 101.565
+C(algorithm, Treatment(reference="fifo"))[T.clock]                                                                              0.000    0.815    0.000 1.000   -1.597   1.597
+C(algorithm, Treatment(reference="fifo"))[T.lru]                                                                                0.000    0.815    0.000 1.000   -1.597   1.597
+C(workload, Treatment(reference="sequential"))[T.locality]                                                                    -45.745    1.130  -40.498 0.000  -47.959 -43.531
+C(workload, Treatment(reference="sequential"))[T.looping]                                                                       0.000    1.130    0.000 1.000   -2.214   2.214
+C(workload, Treatment(reference="sequential"))[T.mixed]                                                                        -4.792    1.130   -4.243 0.000   -7.006  -2.578
+C(workload, Treatment(reference="sequential"))[T.random]                                                                      -24.998    1.130  -22.131 0.000  -27.212 -22.784
+C(frames)[T.5]                                                                                                                  0.000    0.815    0.000 1.000   -1.597   1.597
+C(frames)[T.8]                                                                                                                  0.000    0.815    0.000 1.000   -1.597   1.597
+C(frames)[T.10]                                                                                                               -99.990    0.815 -122.690 0.000 -101.587 -98.393
+C(frames)[T.15]                                                                                                               -99.990    0.815 -122.690 0.000 -101.587 -98.393
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.locality]                  -0.466    1.153   -0.404 0.686   -2.725   1.793
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.locality]                    -2.380    1.153   -2.065 0.039   -4.639  -0.121
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.looping]                   -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.looping]                     -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.mixed]                     -0.002    1.153   -0.001 0.999   -2.260   2.257
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.mixed]                        0.011    1.153    0.010 0.992   -2.248   2.270
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.random]                    -0.007    1.153   -0.006 0.995   -2.266   2.252
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.random]                      -0.017    1.153   -0.015 0.988   -2.276   2.242
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(frames)[T.5]                                                              -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(frames)[T.5]                                                                -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(frames)[T.8]                                                              -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(frames)[T.8]                                                                -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(frames)[T.10]                                                             -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(frames)[T.10]                                                               -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(frames)[T.15]                                                             -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(frames)[T.15]                                                               -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.5]                                                     -17.354    1.153  -15.057 0.000  -19.613 -15.095
+C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.5]                                                       -0.000    1.153   -0.000 1.000   -2.259   2.259
+C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.5]                                                         -3.196    1.153   -2.773 0.006   -5.455  -0.937
+C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.5]                                                       -16.762    1.153  -14.543 0.000  -19.021 -14.503
+C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.8]                                                     -28.190    1.153  -24.459 0.000  -30.449 -25.931
+C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.8]                                                      -99.992    1.153  -86.757 0.000 -102.251 -97.733
+C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.8]                                                        -41.343    1.153  -35.871 0.000  -43.602 -39.084
+C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.8]                                                       -41.709    1.153  -36.188 0.000  -43.968 -39.450
+C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.10]                                                     67.941    1.153   58.948 0.000   65.682  70.200
+C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.10]                                                      -0.002    1.153   -0.002 0.999   -2.261   2.257
+C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.10]                                                        55.408    1.153   48.074 0.000   53.149  57.667
+C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.10]                                                       41.636    1.153   36.125 0.000   39.378  43.895
+C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.15]                                                     61.988    1.153   53.783 0.000   59.729  64.247
+C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.15]                                                      -0.002    1.153   -0.002 0.999   -2.261   2.257
+C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.15]                                                        32.506    1.153   28.204 0.000   30.247  34.765
+C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.15]                                                       25.000    1.153   21.691 0.000   22.741  27.259
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.5]   -2.478    1.630   -1.521 0.128   -5.673   0.716
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.5]     -5.534    1.630   -3.395 0.001   -8.729  -2.340
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.5]     0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.5]       0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.5]      -0.005    1.630   -0.003 0.997   -3.200   3.189
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.5]        -0.017    1.630   -0.010 0.992   -3.212   3.178
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.5]      0.020    1.630    0.012 0.990   -3.175   3.214
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.5]        0.057    1.630    0.035 0.972   -3.138   3.251
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.8]   -5.057    1.630   -3.102 0.002   -8.251  -1.862
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.8]     -6.378    1.630   -3.913 0.000   -9.573  -3.184
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.8]     0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.8]       0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.8]      -0.019    1.630   -0.011 0.991   -3.213   3.176
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.8]        -0.037    1.630   -0.022 0.982   -3.231   3.158
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.8]     -0.038    1.630   -0.023 0.981   -3.233   3.157
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.8]       -0.020    1.630   -0.012 0.990   -3.214   3.175
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.10]  -4.983    1.630   -3.057 0.002   -8.178  -1.789
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.10]    -4.613    1.630   -2.830 0.005   -7.808  -1.419
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.10]    0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.10]      0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.10]      0.018    1.630    0.011 0.991   -3.177   3.213
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.10]       -0.000    1.630   -0.000 1.000   -3.195   3.194
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.10]    -0.010    1.630   -0.006 0.995   -3.204   3.185
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.10]      -0.015    1.630   -0.009 0.993   -3.209   3.180
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.15]  -3.162    1.630   -1.940 0.052   -6.357   0.032
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.locality]:C(frames)[T.15]    -1.424    1.630   -0.874 0.382   -4.619   1.770
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.15]    0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.looping]:C(frames)[T.15]      0.000    1.630    0.000 1.000   -3.195   3.195
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.15]     14.334    1.630    8.794 0.000   11.139  17.529
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.mixed]:C(frames)[T.15]       14.862    1.630    9.118 0.000   11.667  18.056
+C(algorithm, Treatment(reference="fifo"))[T.clock]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.15]     0.007    1.630    0.004 0.996   -3.187   3.202
+C(algorithm, Treatment(reference="fifo"))[T.lru]:C(workload, Treatment(reference="sequential"))[T.random]:C(frames)[T.15]       0.017    1.630    0.010 0.992   -3.178   3.212
+Group Var                                                                                                                       3.059    0.393                                
+==============================================================================================================================================================================
+

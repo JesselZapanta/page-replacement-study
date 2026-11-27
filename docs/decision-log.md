@@ -2,9 +2,9 @@
 
 Purpose: record choices made while implementing the study, and distinguish
 **proposals** from decisions confirmed by the researcher/adviser. Nothing here
-claims experimental findings. The protocol values were approved by the
-researcher on 2026-11-26, then amended and re-approved the same day; README
-section 12 records the current confirmed values.
+claims experimental findings. The protocol was approved on 2026-11-26, amended
+as v2 the same day, and amended again as v2.1 on 2026-11-27; README section 12
+records the current confirmed values.
 
 | Item | Choice implemented | Status |
 | --- | --- | --- |
@@ -13,12 +13,12 @@ section 12 records the current confirmed values.
 | Invalid input handling | Non-zero exit (2 bad arguments, 3 bad input, 4 simulation error, 5 output error) with a message on stderr | Follows README §7 |
 | Timing boundary | `CLOCK_MONOTONIC` starts after trace parsing and stops after the last policy call; trace I/O and generation excluded | Follows README §5/§8 |
 | Result record v1 | JSON with algorithm, frames, trace path, reference count, hits, simulated faults, fault rate, time ns, throughput, run id | Schema approved 2026-11-26 (§12); raw records enriched by the runner |
-| Trace generation | `sequential`, `random`, `looping`, `mixed`, `locality` rules in `scripts/generate_trace.py` (generator v2.0); seeded `random.Random`, parameters and SHA-256 written to a `.metadata.json` beside each trace | v1 rules approved 2026-11-26; locality + revised spans approved as v2 amendment the same day |
-| Experimental factor values | Frames 3/5/8/10/15, length 100,000, 10 repetitions — current values in `configs/experiment-v2.json` | Approved 2026-11-26 (§4/§12); v2 supersedes v1 for reporting |
-| Fair comparison | One trace per workload/repetition, shared by all algorithms and frame counts; seed = base + workload index × 1000 + repetition | Follows README §4; seed rule approved 2026-11-26 |
-| Docker image | `docker/Dockerfile` uses `ubuntu:26.04` (matches host/WSL); tag `page-replacement-study:latest`, memory limit `512m`, `cpus=1`. Built digest `sha256:0430529978c7517adaee53cb47234fa94c181d7977b7ea7e03339a5f264bab6f`; in-image GCC 15.2.0 / Python 3.14.4; container run verified | Image settings approved 2026-11-26 as a fixed environment setting, not an experimental factor |
+| Trace generation | `sequential`, `random`, `looping`, `mixed`, `locality` rules in `scripts/generate_trace.py` (generator v2.1 resets mixed segments); seeded `random.Random`, parameters and SHA-256 written to a `.metadata.json` beside each trace | v1/v2 rules superseded; v2.1 approved 2026-11-27 |
+| Experimental factor values | Frames 3/5/8/10/15, length 100,000, 10 repetitions — current values in `configs/experiment-v2.1.json` | Approved 2026-11-26; v2.1 supersedes v2 and v1 for reporting |
+| Fair comparison | One trace per workload/repetition shared by all algorithms/frames; seed = base + workload index × 1000 + repetition; algorithm order rotated and recorded | Follows README §4; rotation added and approved 2026-11-27 |
+| Docker execution | All 750 v2.1 runs in `page-replacement-study:latest`, base `ubuntu:26.04`, digest `sha256:0430529978c7517adaee53cb47234fa94c181d7977b7ea7e03339a5f264bab6f`, `--memory=512m --cpus=1`; in-image GCC 15.2.0 / Python 3.14.4 | Approved fixed environment setting, not an experimental factor; v1/v2 local runs superseded |
 | OS/cgroup measurements | Not collected by default; `os_fault_counters: false` in configs | Approved 2026-11-26 (§12); must not be conflated with simulated faults |
-| Statistical analysis | Descriptive outputs plus approved mixed-effects inference (`scripts/infer.py`) | Model approved by the researcher 2026-11-26 and executed; see "Inferential model" below |
+| Statistical analysis | Per-condition paired tests with Holm correction and ML interaction test; mixed-effects models supplementary (`scripts/infer.py`) | Revised model approved 2026-11-27 and executed on v2.1; see "Inferential model" below |
 | Demo results | `results/demo/` is sample/test data, labeled `is_demo: true` and excluded from research claims | Fixed rule, not a research result |
 
 ## Run status
@@ -58,23 +58,56 @@ percentage points, with LRU lowest and FIFO highest.
 The full v2 experiment was executed on 2026-11-26: 750 runs (3 algorithms ×
 5 workloads × 5 frame counts × 10 repetitions), 0 failures. All records
 passed the invariant, fault-rate and trace SHA-256 checks. Output is in
-`results/experiment-v2/`; descriptive summaries cover 75 groups. The current
-approved protocol is `configs/experiment-v2.json`; the v1 dataset and its
-approval record remain untouched for traceability.
+`results/experiment-v2/`; descriptive summaries cover 75 groups. This run and
+its local execution mode are now superseded by v2.1 below; the v1/v2 datasets
+and their approval records remain untouched for traceability.
 
-## Inferential model
+## Protocol amendment (v2.1) and re-run
 
-Approved by the researcher on 2026-11-26 and executed on the v2 dataset:
+Approved by the researcher on 2026-11-27 after a review found that no v2 run
+had used Docker, that git provenance was missing, and that run order was fixed.
+Recorded in `configs/experiment-v2.1.json` and
+`results/experiment-v2.1/amendment.json`.
 
-- Primary model: `page_fault_rate_percent ~ algorithm * workload * frames + (1 | trace_id)`, where `trace_id` is workload × repetition. FIFO and sequential are the reference levels; frames are categorical. All three algorithms and five frame counts share a trace, so the pairing is preserved.
-- Pairwise algorithm contrasts are estimated from the fitted model and Holm-corrected, both as averages over all conditions and separately within each workload × frame cell. Paired mean differences, 95% CIs and Cohen's dz are also reported.
-- Secondary model: same structure on `log(algorithm_time_ns)`.
-- Outputs: `results/experiment-v2/processed/inferential/` (specification, model summaries, fixed effects, interaction terms, pairwise tables, effect sizes, diagnostics).
-- Fit status: all three models converged (the timing model required the Powell fallback). The additive comparison model has a near-zero random-effect variance, so its likelihood-ratio interaction test is recorded as approximate.
-- Caveats recorded in `diagnostics.json`: residuals fail Shapiro-Wilk (ceiling/floor effects), so model p-values are approximate; the significant 3-way interaction means overall algorithm averages dilute condition-specific effects — interpret `pairwise_by_condition.csv` instead.
+- `execution.mode = docker`: all 750 runs executed in
+  `page-replacement-study:latest` with `--memory=512m --cpus=1`; image digest
+  and git commit/tag appear in every record.
+- Algorithm order rotated by `(workload_index + repetition + frame_index) mod 3`;
+  three distinct orders occurred (249, 249, 252 runs).
+- Generator v2.1 resets mixed-segment sequential/looping state at each boundary.
+- Code state: commit `a4f37d6b59dc6a539523231e648c5f94991bdcde`, tag `v2.1.2`.
+- Result: 750 Docker runs, 0 failures; all invariant, trace-hash, image and
+  provenance checks passed. v1 and v2 are superseded and remain only for
+  traceability.
+- **Retroactive provenance:** the git repository was initialized after the v1
+  and v2 runs, so their 1,350 records carry `git_commit = not-a-git-repo`. No
+  commit identifies the code that produced them; they must not be reported.
+
+## Inferential model (revised 2026-11-27)
+
+The original pooled REML-contrast approach and the REML likelihood-ratio test
+were retired. The approved revised specification, executed on v2.1:
+
+- **Primary:** per-condition paired t-tests on the 10 independent traces per
+  workload × frame cell, with 95% CI and Cohen's dz. Holm correction is applied
+  across all 42 tested comparisons in one family. Cells whose repetitions share
+  one trace hash are boundary cells (effective n = 1) and are not tested:
+  sequential and looping (30 comparisons) plus three zero-variance cells.
+- **Supplementary model:** `page_fault_rate_percent ~ algorithm * workload *
+  frames + (1 | trace_id)` fitted by REML for fixed-effect estimates only.
+- **Interaction test:** likelihood ratio between full and additive models, both
+  fitted by **ML** (`reml=False`), because REML is invalid for comparing
+  different fixed effects. χ² = 3440.38, df = 64, p ≈ 0.
+- Outputs in `results/experiment-v2.1/processed/inferential/`: `paired_by_condition.csv`,
+  `paired_timing_by_condition.csv`, `boundary_cells.csv`, `diagnostics.json`,
+  `model_spec.json`, and REML summaries.
+- Diagnostics: all fits converged; residual Shapiro-Wilk W = 0.567, p ≈ 1.9e−39,
+  so the single-variance model is a poor fit — the primary per-condition
+  analysis uses separate variances.
 
 ## Remaining items
 
 - Re-record the image digest after any Dockerfile or source change (`docker/build.sh`).
 - Keep raw records in `results/*/raw/` and summaries in `results/*/processed/`; never overwrite raw runs silently.
-- If residuals remain a concern, a robust or transformation-based sensitivity analysis would be a further model change and needs separate approval.
+- OPT baseline, phased-locality workloads and further robustness analyses were deferred and need separate approval.
+

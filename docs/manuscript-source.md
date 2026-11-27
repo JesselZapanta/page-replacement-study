@@ -1,12 +1,12 @@
-# Manuscript source notes — FIFO, LRU and Clock under memory-constrained simulated workloads
+# Manuscript source notes — FIFO, LRU and Clock under memory-constrained containerized workloads
 
 > **Purpose.** A single, verified source for drafting the manuscript. It is not
 > the paper itself and makes no claim beyond what was actually run. Every
 > number below comes from files in this repository, listed in §8.
 >
-> **Status.** Approved protocol v2 (`configs/experiment-v2.json`), executed
-> 2026-11-26. The v1 run is retained but superseded. Model approved and
-> executed 2026-11-26. Compiled: 2026-11-27.
+> **Status.** Approved protocol v2.1 (`configs/experiment-v2.1.json`), executed
+> 2026-11-27. All 750 runs executed inside Docker with rotated algorithm order.
+> Earlier v1/v2 datasets are superseded. Compiled: 2026-11-27.
 
 ---
 
@@ -21,7 +21,7 @@ containerized experimentation, performance measurement.
 **Core idea.** Implement FIFO, LRU and Clock as user-space simulators in C,
 generate deterministic memory-reference traces, run identical traces through
 each algorithm at controlled logical frame capacities, and compare simulated
-page-fault behaviour with a documented container environment.
+page-fault behaviour in a documented container environment.
 
 **General objective.** Compare the three algorithms under controlled workloads
 and logical capacities using a repeatable execution environment.
@@ -32,7 +32,7 @@ and logical capacities using a repeatable execution environment.
    across the selected workloads?
 2. Does relative performance vary with logical frame capacity?
 3. How do workload access patterns affect observed differences?
-4. What execution-time differences are observed in the selected environment?
+4. What execution-time differences are observed in the selected container environment?
 
 ### 1.1 Conceptual distinction — must be preserved in the paper
 
@@ -40,13 +40,14 @@ and logical capacities using a repeatable execution environment.
 |---|---|---|
 | Simulated page fault | Fault recorded by the user-space simulator when a referenced page is absent from its logical frames | **Primary outcome** |
 | Logical page frames | Number of frame slots configured inside the simulator (3–15) | Direct capacity factor |
-| Docker memory limit | Container resource constraint (512 MiB here) | Environment only; **not** a frame count |
+| Docker memory limit | Container resource constraint (512 MiB here), applied to every run in v2.1 | Environment only; **not** a frame count |
 | Linux minor/major faults | OS counters for the real process | Not simulated faults |
 | Container/cgroup memory events | Docker resource measurements | Environmental observations, not simulated faults |
 
 The study does **not** modify, select or evaluate the Linux kernel's actual
-page-replacement policy. Docker is used only for a repeatable execution
-environment. Do not state or imply otherwise.
+page-replacement policy. Docker provides the execution environment and its
+resource limits; it does not choose a paging policy. Do not state or imply
+otherwise.
 
 ---
 
@@ -60,27 +61,31 @@ environment. Do not state or imply otherwise.
 - **Clock** — circular scan with a reference bit; a referenced page gets a
   second chance (bit cleared, hand advanced) before eviction.
 
-All three are implemented as independent policy functions in `src/fifo.c`,
-`src/lru.c`, `src/clock.c`, with shared trace parsing, state and output in
-`src/common.c`. Each receives the same parsed reference sequence and frame
-capacity. Invariant enforced and tested:
+Each policy is an independent function in `src/fifo.c`, `src/lru.c`,
+`src/clock.c`; shared parsing, state and JSON output are in `src/common.c`.
+Invariant enforced and tested:
 `hits + simulated_page_faults = total_references`.
 
 ### 2.2 Workloads and trace generation
 
-Generator: `scripts/generate_trace.py`, rules version 2.0. All rules use
-`random.Random(seed)` so traces are reproducible from seed + parameters.
+Generator: `scripts/generate_trace.py`, rules version 2.1. All rules use
+`random.Random(seed)`, so traces are reproducible from seed + parameters.
 
-| Workload | Generation rule | Parameters (v2) |
+| Workload | Generation rule | Parameters |
 |---|---|---|
 | Sequential | page = (start_page + i) mod span | span = 10 |
 | Random | one seeded `randrange(span)` draw per reference | span = 12 |
 | Looping | page = (start_page + i mod loop_size) mod span | span = 12, loop_size = 8 |
-| Mixed | segments of `segment_length`; each segment's pattern chosen by seeded RNG from sequential/random/looping | span = 20, loop_size = 8, segment_length = 2000 |
+| Mixed | segments of `segment_length`; pattern chosen per segment by seeded RNG; sequential and looping **reset their local index at each segment boundary** (v2.1) | span = 20, loop_size = 8, segment_length = 2000 |
 | Locality | with probability `hot_prob`, draw from a hot set of `hot_set_size` pages; otherwise draw uniformly from span | span = 40, hot_set_size = 4, hot_prob = 0.8 |
 
 `start_page = 0` for all workloads. Each trace contains 100,000 page IDs, one
 per line. Blank lines and `#` comments are ignored by the simulator.
+
+Two workload caveats: uniform **random** behaves as a null/boundary condition
+because the page space far exceeds capacity, producing almost no useful
+reuse; **locality** is a skewed hot-set workload, not alternating hot/cold
+phases. Neither should be over-interpreted.
 
 ### 2.3 Experimental design
 
@@ -91,14 +96,19 @@ per line. Blank lines and `#` comments are ignored by the simulator.
 - Total runs: 3 × 5 × 5 × 10 = **750**.
 - Seed rule: `seed = base_seed + workload_index × 1000 + repetition`, with
   `base_seed = 20261126`, repetitions 1-based.
-- One trace is generated per workload × repetition and shared by **all**
-  algorithms and **all** frame capacities — this is the matched/paired unit.
+- One trace per workload × repetition, shared by all algorithms and all frame
+  counts — the matched/paired unit.
+- **Run order rotated** by `(workload_index + repetition + frame_index) mod 3`
+  so timing is not systematically confounded with algorithm order. Three
+  distinct orders occurred (249, 249 and 252 runs). Each record stores
+  `algorithm_order` and `run_order_position`.
 
 Fair-comparison rules applied: identical traces per condition; fixed recorded
 seeds; no algorithm-specific easier trace; identical trace length and frame
-count within a matched condition; algorithm, workload, frames, trace hash,
-seed, repetition, versions and container settings recorded with each run;
-simulator correctness tests passed before data collection; no results dropped.
+count within a condition; algorithm, workload, frames, trace hash, seed,
+repetition, versions, container settings, git commit/tag and run order recorded
+with every run; correctness tests passed before data collection; no results
+dropped.
 
 ### 2.4 Outcome measures
 
@@ -108,44 +118,48 @@ simulator correctness tests passed before data collection; no results dropped.
 page_fault_rate_percent = simulated_page_faults / total_references × 100
 ```
 
-Raw simulated fault counts are also preserved.
+Raw simulated fault counts are preserved.
 
 **Secondary outcome** — algorithm execution time. Timing uses
 `CLOCK_MONOTONIC` and wraps only the policy loop; trace reading, generation and
-file I/O are excluded. Throughput (references/s) is derived from time and
-reference count. Units are recorded in every run record (ns; refs/s).
+file I/O are excluded. Units are ns; throughput is refs/s. Timing values are
+reported in **milliseconds** in this document (1 ms = 1,000,000 ns).
 
 No OS minor/major fault counters and no cgroup metrics were collected
-(`os_fault_counters: false`), so no OS-level paging claim can be made.
+(`os_fault_counters: false`), so no OS-level paging claim is made.
 
 ### 2.5 Implementation and environment
 
 - Simulator: C11, compiled with `gcc -Wall -Wextra -Wpedantic` (GCC 15.2.0).
 - CLI: `build/simulator --algorithm NAME --frames N --trace FILE [--run-id ID] [--output FILE]`.
 - Exit codes: 0 ok; 2 bad arguments; 3 bad input; 4 simulation error; 5 output error.
-- Invalid frame counts (≤0) and malformed trace lines exit non-zero.
-- Environment: Windows 11 host, WSL2, Ubuntu 26.04.1, Python 3.14.4, Git 2.53.0,
-  Docker Desktop 29.9.3 with WSL2 integration; `docker` without `sudo`.
-- Image: `page-replacement-study:latest`, base `ubuntu:26.04`, digest
-  `sha256:0430529978c7517adaee53cb47234fa94c181d7977b7ea7e03339a5f264bab6f`;
-  in-image GCC 15.2.0 / Python 3.14.4. Memory limit 512 MiB and `cpus=1` are
-  fixed environment settings, **not** an experimental factor.
+- Every one of the 750 reported runs executed inside Docker:
+  `page-replacement-study:latest`, base `ubuntu:26.04`, digest
+  `sha256:0430529978c7517adaee53cb47234fa94c181d7977b7ea7e03339a5f264bab6f`,
+  `--memory=512m`, `--cpus=1`. These are fixed environment settings, **not** an
+  experimental factor and **not** a frame count. The repo is mounted at
+  `/work`; the image entrypoint is `/src/build/simulator`.
+- In-image toolchain: GCC 15.2.0, Python 3.14.4. Host: Windows 11, WSL2,
+  Ubuntu 26.04.1, Git 2.53.0, Docker Desktop 29.9.3 with WSL2 integration.
 - Analysis packages (in `.venv/`): numpy 2.5.5, pandas 3.1.1, scipy 1.18.1,
   statsmodels 0.15.0.
+- Code provenance: every v2.1 record carries `git_commit =
+  a4f37d6b59dc6a539523231e648c5f94991bdcde` and `git_tag = v2.1.2`, the exact
+  state used to generate the data.
 
 ### 2.6 Reproducibility and data handling
 
 Each raw JSONL record includes: run ID, UTC timestamp, label, execution mode,
-Docker image/limit (or null), git commit, algorithm, workload, frames, trace
-path, trace SHA-256, trace length, seed, repetition, hits, simulated faults,
-fault rate, time ns, throughput, status, and Python version. Each trace has a
-`.metadata.json` with generator version, seed, parameters and its SHA-256.
+Docker image/tag/digest and memory limit, git commit/tag, algorithm, workload,
+frames, trace path, trace SHA-256, trace length, seed, repetition, algorithm
+order and position, hits, simulated faults, fault rate, time ns, throughput,
+status and Python version. Each trace has a `.metadata.json` with generator
+version, seed, parameters and SHA-256.
 
-Raw run records are in `results/<label>/raw/`, traces in
-`results/<label>/traces/`, processed summaries in
-`results/<label>/processed/`. The runner refuses to overwrite an existing
-`results.jsonl` unless `--force` is given. The approval/amendment records are
-JSON files in the result directories.
+Raw records are in `results/<label>/raw/`, traces in `results/<label>/traces/`,
+summaries in `results/<label>/processed/`. The runner refuses to overwrite an
+existing `results.jsonl` unless `--force` is given. Approval records are JSON
+files in the result directories.
 
 ### 2.7 Correctness testing
 
@@ -159,35 +173,40 @@ frames; unknown algorithm; missing argument; unknown argument. All passed.
 
 ## 3. Protocol history and approvals
 
-1. **v1 (approved 2026-11-26).** `configs/experiment.json`: span = 1000,
-   frames 3–15, 100,000 references, 10 repetitions, four workloads. Executed:
-   600 runs, 0 failures, data retained in `results/proposed-full-experiment/`.
-2. **Design problem found in v1.** With span 1000 far above frame capacities,
-   sequential and looping faulted on ~100% of references; random 99.7→98.5%
-   and mixed 99.9→99.5% across frames; algorithm differences only
-   0.001–0.003 percentage points. The primary outcome was saturated and could
-   not discriminate the policies. This is an operational check, not a result.
-3. **v2 amendment (approved 2026-11-26).** `configs/experiment-v2.json`:
-   added `locality`, reduced spans/loop sizes; all other factors unchanged.
-   A 10,000-reference pilot showed fault rates from ~0% to 100% and locality
-   algorithm spreads of 2.8–8.4 percentage points.
-4. **Full v2 run (2026-11-26).** 750 runs, 0 failures; all records passed the
-   fault invariant, fault-rate check and trace SHA-256 verification.
-5. **Statistical model (approved 2026-11-26).** Mixed-effects model specified
-   in §5; executed on the v2 dataset.
+1. **v1 (approved 2026-11-26).** `configs/experiment.json`: span = 1000, four
+   workloads. Executed locally: 600 runs, 0 failures. Data retained in
+   `results/proposed-full-experiment/`, but it saturated near 100% faults and
+   is superseded. `git_commit` is `not-a-git-repo` in every record.
+2. **Design problem in v1.** Sequential and looping faulted on ~100% of
+   references; random 99.7→98.5% and mixed 99.9→99.5% across frames; algorithm
+   differences only 0.001–0.003 percentage points. Operational check, not a
+   research finding.
+3. **v2 (approved 2026-11-26).** Added `locality`, reduced spans. Pilot showed
+   variation. Full run: 750 local runs, 0 failures. Also superseded, and also
+   carries `git_commit = not-a-git-repo`.
+4. **v2.1 (approved 2026-11-27).** `configs/experiment-v2.1.json` and tag
+   `v2.1.2`: Docker execution with applied limits, rotated run order, generator
+   v2.1 with reset mixed segments, git provenance in every record, and corrected
+   inference. Full run: **750 Docker runs, 0 failures**. All records verified
+   for invariant, trace SHA-256, unique run IDs, image digest and commit/tag.
+5. **Statistical model (approved 2026-11-26; revised 2026-11-27).** The revised
+   specification is in §5 and `results/experiment-v2.1/processed/inferential/model_spec.json`.
 
-Approval is recorded in `docs/decision-log.md`,
-`results/proposed-full-experiment/approval.json`,
-`results/experiment-v2/amendment.json` and
-`results/experiment-v2/processed/inferential/model_spec.json`.
+Because the repository was initialized after the v1 and v2 runs, no commit
+identifies the code that produced those datasets. This is recorded as a
+retroactive-provenance limitation in `results/experiment-v2.1/amendment.json`;
+those runs must not be used as the reported dataset.
+
+OPT (Belady) baseline was deliberately deferred and is not part of this protocol.
 
 ---
 
-## 4. Descriptive results (approved v2 run)
+## 4. Descriptive results (approved v2.1 run)
 
-All tables: mean fault rate (%) with SD in parentheses, n = 10 repetitions
-per cell. Full machine-readable table:
-`results/experiment-v2/processed/descriptive_stats.csv`.
+Mean fault rate (%) with SD in parentheses, n = 10 repetitions per cell.
+Docker execution does not change deterministic fault counts, so fault-rate
+values match v2; timing values come from the Docker runs.
+Machine-readable table: `results/experiment-v2.1/processed/descriptive_stats.csv`.
 
 ### Sequential
 
@@ -209,9 +228,10 @@ per cell. Full machine-readable table:
 | 10 | 0.008 (0.000) | 0.008 (0.000) | 0.008 (0.000) |
 | 15 | 0.008 (0.000) | 0.008 (0.000) | 0.008 (0.000) |
 
-Sequential and looping provide boundary
-conditions: the working set is either much larger than or fits inside the
-frame capacity, so no eviction choice is required and the algorithms coincide.
+Sequential and looping are boundary conditions: the working set is either far
+larger than or fits inside capacity, so no eviction choice is required and the
+algorithms coincide. Their ten repetitions use one identical trace each
+(effective n = 1), so they are excluded from inference.
 
 ### Random
 
@@ -239,104 +259,94 @@ frame capacity, so no eviction choice is required and the algorithms coincide.
 |---|---|---|---|
 | 3 | 54.255 (0.247) | 51.875 (0.251) | 53.789 (0.240) |
 | 5 | 36.901 (0.281) | 28.986 (0.255) | 33.957 (0.278) |
-| 8 | 26.065 (0.214) | 17.306 (0.191) | 20.542 (0.213) |
+| 8 | 26.064 (0.214) | 17.306 (0.191) | 20.542 (0.213) |
 | 10 | 22.206 (0.214) | 15.212 (0.156) | 16.757 (0.191) |
 | 15 | 16.253 (0.166) | 12.449 (0.127) | 12.625 (0.131) |
 
-### Execution time, locality workload (mean ms; 1 ms = 1,000,000 ns)
+### Execution time, locality workload (mean ms, Docker runs, rotated order)
 
 | Frames | FIFO | LRU | Clock |
 |---|---|---|---|
-| 3 | 0.861 | 0.879 | 1.053 |
-| 5 | 1.113 | 1.102 | 1.296 |
-| 8 | 1.392 | 1.320 | 1.430 |
-| 10 | 1.459 | 1.364 | 1.526 |
-| 15 | 1.680 | 1.503 | 1.696 |
+| 3 | 1.847 | 1.934 | 2.218 |
+| 5 | 2.840 | 2.477 | 3.202 |
+| 8 | 2.670 | 2.785 | 3.628 |
+| 10 | 4.173 | 2.859 | 4.160 |
+| 15 | 3.329 | 4.201 | 3.340 |
 
-Full timing values (ns, SD, throughput) are in `descriptive_stats.csv` and
-`descriptive_summary.json`. Timing reflects scan/loop overhead under the
-measured miss patterns; it is not a measure of policy quality in general.
+Full timing values and SDs are in `descriptive_stats.csv` and
+`descriptive_summary.json`. Rotated order reduces, but does not entirely
+remove, order-related timing bias; timing is a secondary outcome.
 
 ---
 
 ## 5. Inferential analysis
 
-### 5.1 Model and why it was chosen
+### 5.1 Primary method
+
+The primary inference is a **per-condition paired analysis**. Within each
+workload × frame cell, the 10 repetitions are independent traces, and all
+three algorithms process each trace. For each pair, the 10 paired differences
+are analysed with a one-sample t-test:
+
+```
+d_i   = rate(pair member B, trace i) − rate(pair member A, trace i)
+mean  = Σd_i / n            n = 10 independent traces
+sd    = sample SD of d_i
+CI95  = mean ± t(0.975, n−1) × sd / √n
+dz    = mean / sd
+```
+
+- **Holm correction** is applied across **all 42 tested cell × pair
+  comparisons** in one family (not within each cell separately).
+- **Boundary rule:** cells whose repetitions share a single trace hash have
+  effective n = 1 and are not tested. This excludes sequential and looping
+  (30 comparisons) plus three zero-variance cells, leaving 33 boundary
+  comparisons recorded in `boundary_cells.csv`.
+- Per-condition variances are used, so the single-residual-variance assumption
+  is not imposed on the primary results.
+
+### 5.2 Model-based supplementary analysis and interaction test
+
+Mixed-effects models are retained only as supplementary estimates:
 
 ```
 page_fault_rate_percent ~ algorithm * workload * frames + (1 | trace_id)
 ```
 
-- Fixed effects: algorithm, workload, frame capacity (categorical) and all
-  interactions. FIFO and sequential are reference levels.
-- Random effect: intercept by `trace_id` (workload × repetition). All three
-  algorithms and five frame capacities share a trace, so runs are paired,
-  not independent; treating 750 runs as independent would be pseudo-
-  replication and would inflate significance.
-- Fitted by REML with a Powell fallback for the secondary timing model.
-  Rate-model random-effect variance ≈ 3.059 (percentage-points²).
-- A repeated-measures ANOVA would be an alternative but requires sphericity
-  and handles missing runs less flexibly. The mixed model was approved by the
-  researcher before execution.
+FIFO and sequential are references; frames are categorical. REML fits give the
+fixed-effect summary (`fixed_effects.csv`, `model_summary.txt`). The
+interaction likelihood-ratio test compares the full model with an additive
+model using **ML fits on both** (`reml=False`), because likelihood-ratio tests
+of differing fixed effects are invalid under REML.
+Result: χ² = 3440.38, df = 64, p ≈ 0 — effects depend strongly on workload and
+frame capacity, so per-condition results are the ones to interpret.
 
-### 5.2 How the numbers are calculated
-
-1. For each algorithm pair, build the model design matrix over all workload ×
-   frame cells, average rows for each algorithm, subtract to obtain contrast
-   vector **c**, then estimate **c′β** with SE = √(**c′Vc**), where **V** is the
-   fixed-effect covariance matrix; z = estimate/SE; p from the normal distribution.
-2. Holm correction across the three pairs: sorted p-values are multiplied by
-   3, 2, 1 with a running maximum, capped at 1.
-3. Condition-specific contrasts repeat step 1 within one workload × frame
-   cell; Holm is applied within that cell's three comparisons.
-4. Paired effect sizes use the 250 (trace, frame) differences per pair: mean,
-   SD, 95% CI = mean ± t₀.₉₇₅,₂₄₉ × SD/√250, and Cohen's dz = mean/SD.
-5. Interaction test: likelihood ratio between the full 3-way model and an
-   additive model, LR = 2(ℓ_full − ℓ_additive), df = 64.
-
-### 5.3 Overall algorithm contrasts (averaged over all 25 conditions)
-
-| Comparison | Difference (pp) | SE | z | p | Holm p | 95% CI (pp) |
-|---|---|---|---|---|---|---|
-| LRU − FIFO | −0.601 | 0.163 | −3.690 | 0.000225 | 0.000674 | [−0.921, −0.282] |
-| Clock − FIFO | −0.150 | 0.163 | −0.919 | 0.358010 | 0.358010 | [−0.469, 0.170] |
-| Clock − LRU | +0.452 | 0.163 | 2.770 | 0.005598 | 0.011196 | [0.132, 0.771] |
-
-These averages are diluted by boundary conditions where all policies coincide.
-
-### 5.4 Condition-specific contrasts — locality workload
+### 5.3 Condition-specific paired results — locality workload
 
 | Frames | LRU − FIFO (pp) | Holm p | Clock − FIFO (pp) | Holm p | Clock − LRU (pp) | Holm p |
 |---|---|---|---|---|---|---|
-| 3 | −2.380 | 0.0105 | −0.466 | 0.568 | +1.915 | 0.0376 |
-| 5 | −7.915 | 8.07e−22 | −2.944 | 3.03e−4 | +4.971 | 2.13e−9 |
-| 8 | −8.759 | 1.83e−26 | −5.522 | 2.47e−11 | +3.237 | 7.15e−5 |
-| 10 | −6.994 | 2.81e−17 | −5.449 | 4.59e−11 | +1.545 | 0.0580 |
-| 15 | −3.805 | 9.11e−6 | −3.628 | 1.70e−5 | +0.177 | 0.829 |
+| 3 | −2.380 | 2.0e−13 | −0.466 | 1.0e−08 | +1.915 | 7.2e−14 |
+| 5 | −7.915 | 5.0e−18 | −2.944 | 8.1e−17 | +4.971 | 5.1e−16 |
+| 8 | −8.759 | 5.4e−19 | −5.522 | 5.9e−17 | +3.237 | 3.2e−17 |
+| 10 | −6.994 | 2.6e−18 | −5.449 | 1.4e−17 | +1.545 | 1.6e−13 |
+| 15 | −3.805 | 3.6e−16 | −3.628 | 1.6e−15 | +0.177 | 7.2e−06 |
 
-Full 75-row table: `pairwise_by_condition.csv`.
+All 15 locality comparisons survive Holm correction across the 42-comparison
+family. Full results, including CIs and Cohen's dz, are in
+`paired_by_condition.csv`; timing results are in
+`paired_timing_by_condition.csv`.
 
-### 5.5 Paired effect sizes across all conditions
+### 5.4 Diagnostics
 
-| Comparison | n paired | Mean diff (pp) | SD (pp) | 95% CI (pp) | Cohen's dz |
-|---|---|---|---|---|---|
-| LRU − FIFO | 250 | −0.601 | 4.159 | [−1.119, −0.083] | −0.145 |
-| Clock − FIFO | 250 | −0.150 | 3.449 | [−0.579, 0.280] | −0.043 |
-| Clock − LRU | 250 | +0.452 | 1.221 | [0.300, 0.604] | +0.370 |
-
-### 5.6 Model diagnostics
-
-- 750 runs, 50 traces; all three models converged (timing via Powell fallback).
-- Random-effect variance: rate 3.059; timing 0.000181; additive comparison
-  model 4.85e−8 (boundary fit — its LR test is approximate).
-- Interaction likelihood ratio: χ² = 3473.66, df = 64, p ≈ 0 → effects depend
-  strongly on workload and frame capacity; condition-specific results should
-  be used rather than overall averages.
-- Residual Shapiro-Wilk: W = 0.567, p ≈ 1.9e−39 → residuals are not normal
-  because fault rates cluster at 0% and 100%. **Model p-values are therefore
-  approximate** and should be read with the effect sizes.
-- Secondary timing model results: `timing_model_summary.txt` and
-  `timing_pairwise.csv`.
+- 750 runs, 50 traces; 42 rate comparisons tested, 33 boundary comparisons
+  excluded; 45 timing comparisons tested.
+- All four mixed-model fits (REML and ML) converged; the timing model used the
+  default optimizer in v2.1.
+- Interaction LR (ML): χ² = 3440.38, df = 64, p ≈ 0.
+- Residual Shapiro-Wilk: W = 0.567, p ≈ 1.9e−39. The single-variance mixed
+  model is a poor fit because rates cluster at 0% and 100%; this is why the
+  primary inference uses per-condition variances.
+- All raw records passed the fault invariant and trace SHA-256 checks.
 
 ---
 
@@ -348,16 +358,19 @@ Full 75-row table: `pairwise_by_condition.csv`.
 - Synthetic traces are controlled inputs and may not represent real workloads.
 - The primary outcome is a simulated fault count/rate, not Linux minor/major
   faults or Docker/cgroup memory events.
-- Do not claim any algorithm is universally best. Within the approved v2
+- Do not claim any algorithm is universally best. Within the approved v2.1
   conditions, LRU had the lowest simulated fault rates in the locality
   workload at moderate capacities (about 7–9 percentage points below FIFO),
-  with Clock intermediate; these are condition-specific, approximate model
-  results.
-- Sequential and looping workloads produce ceiling/floor rates by design in
-  this protocol; they serve as boundary conditions, not discriminating tests.
-- v1 is superseded; do not report its saturated numbers as the study result.
-- A robustness/transformation-based sensitivity analysis would be a further
-  model change requiring approval before execution.
+  with Clock intermediate. These are condition-specific results.
+- Sequential and looping workloads are boundary conditions with effective
+  n = 1 and no inferential test; random is a null condition; locality is a
+  skewed hot-set pattern, not phased behaviour.
+- Timing was measured inside Docker with rotated algorithm order; it remains
+  a secondary outcome and should not be presented as policy quality.
+- The v1 and v2 datasets are superseded and lack a code commit hash; the
+  manuscript must use v2.1 numbers only.
+- OPT baseline was deferred. A robustness analysis beyond the per-condition
+  paired tests would be a further model change needing approval.
 
 ---
 
@@ -369,22 +382,23 @@ cd ~/projects/page-replacement-study
 make                       # build build/simulator with warnings enabled
 make test                  # known-answer correctness suite
 
-# One run
-build/simulator --algorithm fifo --frames 5 \
-  --trace results/experiment-v2/traces/locality_rep1.trace
+# One run inside the container
+docker run --rm --memory=512m --cpus=1 -v "$PWD:/work" -w /work \
+  page-replacement-study:latest \
+  --algorithm fifo --frames 5 \
+  --trace results/experiment-v2.1/traces/locality_rep1.trace
 
-# Full approved experiment
-python3 scripts/run_experiment.py --config configs/experiment-v2.json
+# Full approved v2.1 experiment (already executed; --force only if intentional)
+python3 scripts/run_experiment.py --config configs/experiment-v2.1.json
 python3 scripts/analyze.py \
-  --input results/experiment-v2/raw/results.jsonl \
-  --output-dir results/experiment-v2/processed
+  --input results/experiment-v2.1/raw/results.jsonl \
+  --output-dir results/experiment-v2.1/processed
 
 # Approved inferential analysis
 .venv/bin/python scripts/infer.py
 
-# Container image and example run
+# Rebuild the image if the simulator source changes
 bash docker/build.sh
-bash docker/run-example.sh
 ```
 
 From Windows PowerShell, prefix with:
@@ -397,18 +411,16 @@ From Windows PowerShell, prefix with:
 | Need | File |
 |---|---|
 | Research design, rules, conceptual distinction | `README.md` (especially §2, §4–§6, §10–§12) |
-| Approved protocol v2 | `configs/experiment-v2.json` |
-| Superseded protocol v1 | `configs/experiment.json` |
+| Approved protocol v2.1 | `configs/experiment-v2.1.json` |
+| Superseded protocols | `configs/experiment-v2.json`, `configs/experiment.json` |
 | Protocol history, approvals, caveats | `docs/decision-log.md` |
-| Raw records (750) | `results/experiment-v2/raw/results.jsonl` |
-| Run manifest and hashes | `results/experiment-v2/run_manifest.json` |
-| Amendment/approval record | `results/experiment-v2/amendment.json` |
-| Traces and generation metadata | `results/experiment-v2/traces/` |
-| Descriptive tables | `results/experiment-v2/processed/descriptive_stats.csv`, `descriptive_summary.json` |
-| Model specification | `results/experiment-v2/processed/inferential/model_spec.json` |
-| Model summaries and fixed effects | `.../inferential/model_summary.txt`, `fixed_effects.csv`, `interaction_terms.csv` |
-| Pairwise results and effect sizes | `.../inferential/pairwise_algorithms.csv`, `pairwise_by_condition.csv`, `paired_effect_sizes.csv` |
-| Diagnostics | `.../inferential/diagnostics.json` |
-| Timing model | `.../inferential/timing_model_summary.txt`, `timing_pairwise.csv` |
+| Raw records (750, Docker, tagged code) | `results/experiment-v2.1/raw/results.jsonl` |
+| Run manifest | `results/experiment-v2.1/run_manifest.json` |
+| Amendment/approval and provenance | `results/experiment-v2.1/amendment.json` |
+| Traces and generation metadata | `results/experiment-v2.1/traces/` |
+| Descriptive tables | `results/experiment-v2.1/processed/descriptive_stats.csv`, `descriptive_summary.json` |
+| Primary inference | `results/experiment-v2.1/processed/inferential/paired_by_condition.csv`, `paired_timing_by_condition.csv`, `boundary_cells.csv` |
+| Model specification and diagnostics | `results/experiment-v2.1/processed/inferential/model_spec.json`, `diagnostics.json` |
+| Supplementary model outputs | `results/experiment-v2.1/processed/inferential/model_summary.txt`, `fixed_effects.csv`, `timing_model_summary.txt` |
 | Simulator source | `src/fifo.c`, `src/lru.c`, `src/clock.c`, `src/common.c`, `src/simulator.c` |
 | Correctness tests | `tests/run_tests.py` |

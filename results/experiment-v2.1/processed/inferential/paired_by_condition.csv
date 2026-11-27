@@ -1,0 +1,76 @@
+response,workload,frames,comparison,n_traces,distinct_trace_hashes,mean_difference,sd_difference,p_value,p_holm,significant_after_holm,ci95_low,ci95_high,cohens_dz,status,t_statistic
+page_fault_rate_percent,locality,3,lru - fifo,10,10,-2.380300000000001,0.0776130716367341,6.6819033751061264e-15,2.0045710125318378e-13,True,-2.4358210467889347,-2.324778953211067,-30.6688029452169,tested,-96.98327041776558
+page_fault_rate_percent,locality,3,clock - fifo,10,10,-0.46570000000000034,0.05103168950106617,3.5105504218811824e-10,1.0180596223455428e-08,True,-0.5022058715079387,-0.429194128492062,-9.125702177472897,tested,-28.85800412917248
+page_fault_rate_percent,locality,3,clock - lru,10,10,1.9146000000000007,0.055303606472715414,2.247065789560478e-15,7.190610526593529e-14,True,1.8750381831846599,1.9541618168153416,34.61980370022682,tested,109.47743184064186
+page_fault_rate_percent,locality,5,lru - fifo,10,10,-7.9148,0.07688490676907275,1.239739030931945e-19,4.95895612372778e-18,True,-7.969800149022166,-7.859799850977833,-102.94348179119804,tested,-325.5358727282559
+page_fault_rate_percent,locality,5,clock - fifo,10,10,-2.9441,0.03944743337658491,2.2396468143687518e-18,8.062728531727506e-17,True,-2.972318993888758,-2.9158810061112423,-74.63349952059366,tested,-236.01184823416074
+page_fault_rate_percent,locality,5,clock - lru,10,10,4.970699999999999,0.08219225429848508,1.4864617757571735e-17,5.05397003757439e-16,True,4.91190320327028,5.029496796729718,60.47650161715563,tested,191.2434900290681
+page_fault_rate_percent,locality,8,lru - fifo,10,10,-8.758799999999999,0.06618794787908436,1.2935650796893644e-20,5.43297333469533e-19,True,-8.806148005607328,-8.71145199439267,-132.33224900704033,tested,-418.47131475480285
+page_fault_rate_percent,locality,8,clock - fifo,10,10,-5.522299999999999,0.07126796069919676,1.59798816304892e-18,5.912556203281004e-17,True,-5.573282027860615,-5.471317972139382,-77.48643213334205,tested,-245.03361330142081
+page_fault_rate_percent,locality,8,clock - lru,10,10,3.2365000000000004,0.03884227364897987,8.311929107216932e-19,3.158533060742434e-17,True,3.2087139113016003,3.2642860886984004,83.32416452364399,tested,263.494144025314
+page_fault_rate_percent,locality,10,lru - fifo,10,10,-6.993600000000001,0.06316855757943766,6.440831297107667e-20,2.6407408318141433e-18,True,-7.038788063904657,-6.9484119360953445,-110.71330845579612,tested,-350.106222013095
+page_fault_rate_percent,locality,10,clock - fifo,10,10,-5.4489,0.05964608583600057,3.631928132271308e-19,1.4164519715858103e-17,True,-5.491568239416902,-5.406231760583098,-91.35385706585978,tested,-288.8862613695836
+page_fault_rate_percent,locality,10,clock - lru,10,10,1.5447,0.048828611830906726,5.055287693976993e-15,1.5671391851328678e-13,True,1.5097701153178,1.5796298846822,31.635140588253655,tested,100.03909835852049
+page_fault_rate_percent,locality,15,lru - fifo,10,10,-3.8045,0.06032918954462436,1.019853816949e-17,3.5694883593214997e-16,True,-3.84765690237236,-3.76134309762764,-63.062342271080624,tested,-199.4206361617303
+page_fault_rate_percent,locality,15,clock - fifo,10,10,-3.628,0.06855978737163988,4.942191333579885e-17,1.630923140081362e-15,True,-3.677044717368183,-3.578955282631817,-52.91731697377961,tested,-167.33924930223225
+page_fault_rate_percent,locality,15,clock - lru,10,10,0.17650000000000005,0.041253282697664116,2.7541874824201375e-07,7.160887454292358e-06,True,0.14698917932826588,0.2060108206717342,4.278447397593259,tested,13.529638625614702
+page_fault_rate_percent,looping,3,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,3,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,3,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,5,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,5,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,5,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,8,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,8,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,8,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,10,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,10,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,10,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,15,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,15,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,looping,15,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,mixed,3,lru - fifo,10,10,0.010999999999998521,0.006733003292246331,0.0005900439898979387,0.014751099747448468,True,0.006183499596966888,0.015816500403030155,1.633743445910093,tested,5.166350401447994
+page_fault_rate_percent,mixed,3,clock - fifo,10,10,-0.001500000000001478,0.007933753490276065,0.564660572451172,1.0,False,-0.007175465349539325,0.004175465349536368,-0.18906561715585693,tested,-0.5978779774379138
+page_fault_rate_percent,mixed,3,clock - lru,10,10,-0.0125,0.008972179222468008,0.0017062744975274635,0.040950587940659124,True,-0.018918310368399,-0.006081689631601003,-1.3931955314376325,tested,-4.405671105311638
+page_fault_rate_percent,mixed,5,lru - fifo,10,10,-0.005999999999997385,0.034820172952536935,0.599059926927286,1.0,False,-0.030908851188687633,0.01890885118869286,-0.17231390574009875,tested,-0.5449044146582741
+page_fault_rate_percent,mixed,5,clock - fifo,10,10,-0.00689999999999884,0.0331275313498187,0.5266048435030254,1.0,False,-0.03059800832885134,0.01679800832885366,-0.20828596997272492,tested,-0.6586580697712499
+page_fault_rate_percent,mixed,5,clock - lru,10,10,-0.0009000000000014552,0.03774313771329276,0.9415414172664652,1.0,False,-0.027899814216207273,0.026099814216204362,-0.023845394276387467,tested,-0.07540575761812704
+page_fault_rate_percent,mixed,8,lru - fifo,10,10,-0.02559999999999931,0.041830876421874545,0.08495065094453477,1.0,False,-0.05552400633119271,0.004324006331194091,-0.611988133880273,tested,-1.9352764040577222
+page_fault_rate_percent,mixed,8,clock - fifo,10,10,-0.020199999999998396,0.04419099958639144,0.18222271560296543,1.0,False,-0.051812336735870296,0.0114123367358735,-0.45710665495376035,tested,-1.4454981632745718
+page_fault_rate_percent,mixed,8,clock - lru,10,10,0.005400000000000915,0.03979726400422906,0.6779514442522422,1.0,False,-0.023069247644162093,0.03386924764416392,0.13568771962381845,tested,0.4290822445255918
+page_fault_rate_percent,mixed,10,lru - fifo,10,10,0.010499999999998266,0.08697924401194283,0.7115072976783566,1.0,False,-0.051721202880052615,0.07272120288004914,0.12071845552666043,tested,0.38174527508198824
+page_fault_rate_percent,mixed,10,clock - fifo,10,10,0.016499999999999914,0.057413219538516115,0.38714068447370387,1.0,False,-0.024570943090887486,0.05757094309088731,0.2873902584217692,tested,0.9088077939571781
+page_fault_rate_percent,mixed,10,clock - lru,10,10,0.006000000000001648,0.06009806800370411,0.7594196308253021,1.0,False,-0.03699156798194272,0.04899156798194602,0.09983682003940363,tested,0.3157117456728568
+page_fault_rate_percent,mixed,15,lru - fifo,10,10,14.8727,3.3456414448918137,1.9793668514011752e-07,5.344290498783173e-06,True,12.479372287494968,17.266027712505032,4.4453956722433325,tested,14.057575424944288
+page_fault_rate_percent,mixed,15,clock - fifo,10,10,14.332500000000001,3.1715090081677038,1.7168193248023005e-07,4.807094109446441e-06,True,12.063739128659062,16.60126087134094,4.519142138045009,tested,14.290782226265296
+page_fault_rate_percent,mixed,15,clock - lru,10,10,-0.5401999999999993,0.8170895231790027,0.06611174160859092,1.0,False,-1.1247106332023764,0.044310633202377714,-0.6611270670786166,tested,-2.0906673547553507
+page_fault_rate_percent,random,3,lru - fifo,10,10,-0.016900000000002535,0.0461963201997737,0.2771130583957891,1.0,False,-0.049946856685342766,0.016146856685337694,-0.3658300039249733,tested,-1.1568560488312536
+page_fault_rate_percent,random,3,clock - fifo,10,10,-0.007200000000000273,0.03074193661216589,0.477794441197537,1.0,False,-0.029191456658425558,0.014791456658425014,-0.23420775635686295,tested,-0.7406299557654664
+page_fault_rate_percent,random,3,clock - lru,10,10,0.009700000000002262,0.04568989676795744,0.5188530586072446,1.0,False,-0.022984583186042844,0.04238458318604737,0.21230076419881347,tested,0.6713539638625826
+page_fault_rate_percent,random,5,lru - fifo,10,10,0.03979999999999961,0.0953692240132473,0.21951704148127027,1.0,False,-0.02842303301494019,0.10802303301493942,0.41732540462394013,tested,1.3196988040630155
+page_fault_rate_percent,random,5,clock - fifo,10,10,0.012399999999998811,0.0723835463194338,0.6011572504552947,1.0,False,-0.039380069738255655,0.06418006973825327,0.17130965019697594,tested,0.5417286797891566
+page_fault_rate_percent,random,5,clock - lru,10,10,-0.027400000000000802,0.11704529037940872,0.4779959176915018,1.0,False,-0.11112915678425263,0.05632915678425103,-0.23409741571986536,tested,-0.7402810280340802
+page_fault_rate_percent,random,8,lru - fifo,10,10,-0.03670000000000044,0.08801142602589336,0.219855820360938,1.0,False,-0.09965958141194954,0.02625958141194866,-0.4169913118917439,tested,-1.3186423100795666
+page_fault_rate_percent,random,8,clock - fifo,10,10,-0.0453000000000003,0.11780025466865549,0.25489676429936287,1.0,False,-0.12956922570232604,0.03896922570232543,-0.38454925354294506,tested,-1.2160515137132812
+page_fault_rate_percent,random,8,clock - lru,10,10,-0.008599999999999853,0.10109643361112647,0.7939899558447371,1.0,False,-0.080920031952724,0.06372003195272428,-0.08506729360088282,tested,-0.2690064021650562
+page_fault_rate_percent,random,10,lru - fifo,10,10,-0.03159999999999954,0.13465280456707077,0.47693710011187873,1.0,False,-0.12792481365537187,0.06472481365537278,-0.23467762221216515,tested,-0.7421158020629645
+page_fault_rate_percent,random,10,clock - fifo,10,10,-0.016799999999999572,0.13936825718617232,0.7119025594418211,1.0,False,-0.11649804525122368,0.08289804525122452,-0.12054394837956268,tested,-0.38119343502918135
+page_fault_rate_percent,random,10,clock - lru,10,10,0.01479999999999997,0.06958096802367103,0.518082471764893,1.0,False,-0.0349752259998571,0.06457522599985703,0.21270184104028414,tested,0.6726222801983763
+page_fault_rate_percent,random,15,lru - fifo,10,10,0.0,0.0,,,,,,,zero variance; test undefined,
+page_fault_rate_percent,random,15,clock - fifo,10,10,0.0,0.0,,,,,,,zero variance; test undefined,
+page_fault_rate_percent,random,15,clock - lru,10,10,0.0,0.0,,,,,,,zero variance; test undefined,
+page_fault_rate_percent,sequential,3,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,3,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,3,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,5,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,5,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,5,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,8,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,8,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,8,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,10,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,10,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,10,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,15,lru - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,15,clock - fifo,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
+page_fault_rate_percent,sequential,15,clock - lru,10,1,0.0,0.0,,,,,,,boundary: identical traces across repetitions (effective n=1),
