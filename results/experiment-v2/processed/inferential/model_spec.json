@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-26T06:15:27+00:00",
+  "status": "approved model, executed",
+  "approval_source": "/home/jessel_zapanta/projects/page-replacement-study/results/experiment-v2/amendment.json",
+  "input": "/home/jessel_zapanta/projects/page-replacement-study/results/experiment-v2/raw/results.jsonl",
+  "primary_formula": "page_fault_rate_percent ~ C(algorithm, Treatment(reference=\"fifo\")) * C(workload, Treatment(reference=\"sequential\")) * C(frames)",
+  "secondary_formula": "log_time_ns ~ C(algorithm, Treatment(reference=\"fifo\")) * C(workload, Treatment(reference=\"sequential\")) * C(frames)",
+  "random_effects": "intercept by trace_id (workload x repetition)",
+  "pairwise_method": "mean predicted contrast over all workload x frame conditions (pairwise_algorithms.csv) and within each workload x frame cell (pairwise_by_condition.csv); Holm correction across the 3 pairs in each family",
+  "effect_sizes": "paired mean difference with 95% CI and Cohen's dz per matched trace/frame",
+  "algorithm_reference": "fifo",
+  "workload_reference": "sequential",
+  "frames_treatment": "categorical",
+  "versions": {
+    "numpy": "2.5.5",
+    "pandas": "3.1.1",
+    "scipy": "1.18.1",
+    "statsmodels": "0.15.0"
+  },
+  "interpretation": "Descriptive and model outputs only within the approved v2 protocol; see docs/decision-log.md."
+}

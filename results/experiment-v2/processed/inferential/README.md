@@ -1,0 +1,3 @@
+# Inferential output
+
+Produced by `scripts/infer.py` with the approved mixed-effects model in `model_spec.json`. `pairwise_algorithms.csv` gives average contrasts; `pairwise_by_condition.csv` gives contrasts within each workload x frame cell, which matter because the interaction likelihood-ratio test in `diagnostics.json` is significant. Compare p-values with `paired_effect_sizes.csv` for practical magnitude. The Shapiro-Wilk result in `diagnostics.json` indicates non-normal residuals, so these model-based p-values should be treated as approximate. All outputs are scoped to the approved v2 protocol.

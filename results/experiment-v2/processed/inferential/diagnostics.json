@@ -1,0 +1,31 @@
+{
+  "n_runs": 750,
+  "n_traces": 50,
+  "rate_model_converged": true,
+  "additive_model_converged": true,
+  "timing_model_converged": true,
+  "fit_methods": {
+    "rate_model": "default (BFGS)",
+    "additive_model": "default (BFGS)",
+    "timing_model": "powell (fallback)"
+  },
+  "random_effect_variance": {
+    "rate_model": 3.058759809384814,
+    "additive_model": 4.8484933991594044e-08,
+    "timing_model": 0.00018134551393553144
+  },
+  "boundary_fit": {
+    "rate_model": false,
+    "additive_model": true,
+    "timing_model": false
+  },
+  "likelihood_ratio_interactions": {
+    "statistic": 3473.661849111598,
+    "df": 64,
+    "p_value": 0.0,
+    "note": "full 3-way interaction model vs additive model"
+  },
+  "residual_shapiro_w": 0.5665843817811599,
+  "residual_shapiro_p": 1.9113874698697334e-39,
+  "note": "Shapiro-Wilk is sensitive at large n; inspect residuals alongside the test."
+}

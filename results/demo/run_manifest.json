@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "label": "demo",
+  "is_demo": true,
+  "started_utc": "2026-11-26T05:11:31+00:00",
+  "finished_utc": "2026-11-26T05:11:31+00:00",
+  "config_path": "configs/demo.json",
+  "config": {
+    "config_version": 1,
+    "label": "demo",
+    "status": "SAMPLE / TEST DATA ONLY - not research findings.",
+    "algorithms": [
+      "fifo",
+      "lru",
+      "clock"
+    ],
+    "workloads": [
+      "sequential",
+      "random",
+      "looping",
+      "mixed"
+    ],
+    "frames": [
+      3,
+      5
+    ],
+    "trace_length": 300,
+    "repetitions": 2,
+    "base_seed": 42,
+    "seed_rule": "seed = base_seed + workload_index * 1000 + repetition (1-based)",
+    "trace_generation": {
+      "sequential": {
+        "start_page": 0,
+        "span": 50
+      },
+      "random": {
+        "start_page": 0,
+        "span": 50
+      },
+      "looping": {
+        "start_page": 0,
+        "span": 50,
+        "loop_size": 10
+      },
+      "mixed": {
+        "start_page": 0,
+        "span": 50,
+        "loop_size": 10,
+        "segment_length": 30
+      }
+    },
+    "execution": {
+      "mode": "local",
+      "simulator": "build/simulator",
+      "docker_image": "page-replacement-study:latest",
+      "docker_memory_limit": "512m",
+      "docker_cpus": 1.0,
+      "note": "Small, fast config for demonstrating the pipeline only."
+    },
+    "measurement": {
+      "timing": "CLOCK_MONOTONIC around the policy loop only; trace reading excluded",
+      "primary_outcome": "page_fault_rate_percent = simulated_page_faults / total_references * 100",
+      "os_fault_counters": false
+    }
+  },
+  "git_commit": "not-a-git-repo",
+  "simulator": "build/simulator",
+  "planned_runs": 48,
+  "completed_runs": 48,
+  "failed_runs": 0,
+  "failed_run_ids": [],
+  "raw_records": "results/demo/raw/results.jsonl",
+  "note": "Demo/sample data only; never report as research findings."
+}

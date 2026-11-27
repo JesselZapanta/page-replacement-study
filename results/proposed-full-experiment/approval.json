@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "approved_on": "2026-11-26",
+  "approved_by": "researcher (project owner)",
+  "scope": "All values in configs/experiment.json: algorithms, workloads, frame capacities, trace length, repetitions, seeds, workload generation parameters, Docker settings, OS-counter policy, CLI and result schema.",
+  "config_path": "configs/experiment.json",
+  "config_sha256_at_approval": "c937b9db9c30ae4d7c2d128d63c9f0185f6db230e1b2bbdc4bcc6cf06329cb1c",
+  "dataset": "results/proposed-full-experiment/raw/results.jsonl",
+  "dataset_sha256_at_approval": "3e57ae8e47d2adb4cf14ac9fa717d3e70bf0c353a33b81c94f87c01c81b28350",
+  "dataset_runs": 600,
+  "dataset_failures": 0,
+  "note": "Approval recorded after execution; raw run records and traces were not modified. The directory name predates approval and is kept for traceability. The inferential statistical model is a separate, still-open item."
+}

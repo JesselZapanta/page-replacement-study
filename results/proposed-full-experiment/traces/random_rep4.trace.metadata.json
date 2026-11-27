@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-26T05:17:21+00:00",
+  "generator_version": "1.0",
+  "python_version": "3.14.4",
+  "workload": "random",
+  "length": 100000,
+  "seed": 20262130,
+  "parameters": {
+    "start_page": 0,
+    "span": 1000
+  },
+  "trace_path": "/home/jessel_zapanta/projects/page-replacement-study/results/proposed-full-experiment/traces/random_rep4.trace",
+  "trace_sha256": "cd4b2314ea438a06b696170a7453db99e137cfe2aaf39c593fb2c9c451d800a5"
+}

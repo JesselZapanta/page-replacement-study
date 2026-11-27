@@ -1,0 +1,8 @@
+.git
+build
+.venv
+results
+traces
+**/__pycache__
+*.pyc
+audit

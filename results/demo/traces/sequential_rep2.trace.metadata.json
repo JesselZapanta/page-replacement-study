@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-26T05:11:31+00:00",
+  "generator_version": "1.0",
+  "python_version": "3.14.4",
+  "workload": "sequential",
+  "length": 300,
+  "seed": 44,
+  "parameters": {
+    "start_page": 0,
+    "span": 50
+  },
+  "trace_path": "/home/jessel_zapanta/projects/page-replacement-study/results/demo/traces/sequential_rep2.trace",
+  "trace_sha256": "ad8cf9082a4279261c42f639ed6c7d6bdef5ffaf8cb57a54b808933776b4681c"
+}

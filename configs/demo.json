@@ -1,0 +1,31 @@
+{
+  "config_version": 1,
+  "label": "demo",
+  "status": "SAMPLE / TEST DATA ONLY - not research findings.",
+  "algorithms": ["fifo", "lru", "clock"],
+  "workloads": ["sequential", "random", "looping", "mixed"],
+  "frames": [3, 5],
+  "trace_length": 300,
+  "repetitions": 2,
+  "base_seed": 42,
+  "seed_rule": "seed = base_seed + workload_index * 1000 + repetition (1-based)",
+  "trace_generation": {
+    "sequential": {"start_page": 0, "span": 50},
+    "random": {"start_page": 0, "span": 50},
+    "looping": {"start_page": 0, "span": 50, "loop_size": 10},
+    "mixed": {"start_page": 0, "span": 50, "loop_size": 10, "segment_length": 30}
+  },
+  "execution": {
+    "mode": "local",
+    "simulator": "build/simulator",
+    "docker_image": "page-replacement-study:latest",
+    "docker_memory_limit": "512m",
+    "docker_cpus": 1.0,
+    "note": "Small, fast config for demonstrating the pipeline only."
+  },
+  "measurement": {
+    "timing": "CLOCK_MONOTONIC around the policy loop only; trace reading excluded",
+    "primary_outcome": "page_fault_rate_percent = simulated_page_faults / total_references * 100",
+    "os_fault_counters": false
+  }
+}

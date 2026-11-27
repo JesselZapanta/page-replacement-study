@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "label": "experiment-v2",
+  "is_demo": false,
+  "started_utc": "2026-11-26T05:47:20+00:00",
+  "finished_utc": "2026-11-26T05:47:28+00:00",
+  "config_path": "configs/experiment-v2.json",
+  "config": {
+    "config_version": 2,
+    "label": "experiment-v2",
+    "status": "APPROVED - protocol amendment confirmed by the researcher on 2026-11-26. Supersedes configs/experiment.json for reporting; the v1 dataset is retained.",
+    "amendment": {
+      "supersedes": "configs/experiment.json",
+      "date": "2026-11-26",
+      "approved_by": "researcher (project owner)",
+      "reason": "In v1, span=1000 with frames 3-15 saturated the primary outcome near 100% faults, so FIFO/LRU/Clock could not be discriminated. Added the locality workload and reduced page spans to create hit/miss variation and policy-sensitive reuse.",
+      "changes": [
+        "Added workload 'locality' with a hot set and skewed access probability (generator v2.0).",
+        "Reduced span/loop_size for all workloads.",
+        "Preserved algorithms, frame capacities, trace length, repetitions, seed rule, execution and measurement settings."
+      ]
+    },
+    "algorithms": [
+      "fifo",
+      "lru",
+      "clock"
+    ],
+    "workloads": [
+      "sequential",
+      "random",
+      "looping",
+      "mixed",
+      "locality"
+    ],
+    "frames": [
+      3,
+      5,
+      8,
+      10,
+      15
+    ],
+    "trace_length": 100000,
+    "repetitions": 10,
+    "base_seed": 20261126,
+    "seed_rule": "seed = base_seed + workload_index * 1000 + repetition (1-based)",
+    "trace_generation": {
+      "sequential": {
+        "start_page": 0,
+        "span": 10
+      },
+      "random": {
+        "start_page": 0,
+        "span": 12
+      },
+      "looping": {
+        "start_page": 0,
+        "span": 12,
+        "loop_size": 8
+      },
+      "mixed": {
+        "start_page": 0,
+        "span": 20,
+        "loop_size": 8,
+        "segment_length": 2000
+      },
+      "locality": {
+        "start_page": 0,
+        "span": 40,
+        "hot_set_size": 4,
+        "hot_prob": 0.8
+      }
+    },
+    "execution": {
+      "mode": "local",
+      "simulator": "build/simulator",
+      "docker_image": "page-replacement-study:latest",
+      "docker_memory_limit": "512m",
+      "docker_cpus": 1.0
+    },
+    "measurement": {
+      "timing": "CLOCK_MONOTONIC around the policy loop only; trace reading excluded",
+      "primary_outcome": "page_fault_rate_percent = simulated_page_faults / total_references * 100",
+      "os_fault_counters": false
+    }
+  },
+  "git_commit": "not-a-git-repo",
+  "simulator": "build/simulator",
+  "planned_runs": 750,
+  "completed_runs": 750,
+  "failed_runs": 0,
+  "failed_run_ids": [],
+  "raw_records": "results/experiment-v2/raw/results.jsonl",
+  "note": "Approved protocol (docs/decision-log.md)."
+}

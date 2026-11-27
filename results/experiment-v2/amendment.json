@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "approved-amendment",
+  "date": "2026-11-26",
+  "approved_by": "researcher (project owner)",
+  "supersedes": "configs/experiment.json",
+  "config_path": "configs/experiment-v2.json",
+  "config_sha256_at_approval": "c26f00d9919fb2035f003fc93f8e7754e7bc17fc4030fac2f5a8487fad7aff9c",
+  "dataset": "results/experiment-v2/raw/results.jsonl",
+  "dataset_sha256_at_approval": "4529141de9f0b5dca902d3da1dbdbe4fc80075d36e1c3b67be700d6c74e8d93a",
+  "dataset_runs": 750,
+  "dataset_failures": 0,
+  "reason": "v1 fault rates saturated near 100% because span=1000 was far larger than frames 3-15, so the algorithms could not be discriminated.",
+  "changes": [
+    "Added workload 'locality' (hot set with skewed access) using generator v2.0",
+    "Reduced span/loop_size for all workloads",
+    "Kept algorithms, frame capacities, trace length, repetitions, seed rule, execution and measurement settings"
+  ],
+  "pilot_check": "At 10,000 references, fault rates ranged from ~0% to 100% and locality spread between algorithms was 2.8-8.4 percentage points.",
+  "note": "The v1 dataset in results/proposed-full-experiment/ is retained unchanged but superseded for reporting. The inferential statistical model remains a separate open item."
+}

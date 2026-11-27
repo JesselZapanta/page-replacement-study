@@ -1,0 +1,31 @@
+{
+  "config_version": 1,
+  "label": "proposed-full-experiment",
+  "status": "APPROVED - confirmed by the researcher on 2026-11-26. See docs/decision-log.md and results/proposed-full-experiment/approval.json.",
+  "algorithms": ["fifo", "lru", "clock"],
+  "workloads": ["sequential", "random", "looping", "mixed"],
+  "frames": [3, 5, 8, 10, 15],
+  "trace_length": 100000,
+  "repetitions": 10,
+  "base_seed": 20261126,
+  "seed_rule": "seed = base_seed + workload_index * 1000 + repetition (1-based)",
+  "trace_generation": {
+    "sequential": {"start_page": 0, "span": 1000},
+    "random": {"start_page": 0, "span": 1000},
+    "looping": {"start_page": 0, "span": 1000, "loop_size": 50},
+    "mixed": {"start_page": 0, "span": 1000, "loop_size": 50, "segment_length": 2000}
+  },
+  "execution": {
+    "mode": "local",
+    "simulator": "build/simulator",
+    "docker_image": "page-replacement-study:latest",
+    "docker_memory_limit": "512m",
+    "docker_cpus": 1.0,
+    "note": "Image tag, memory limit and CPU settings are unconfirmed proposals (README section 12). Local mode records them as configuration but does not apply them."
+  },
+  "measurement": {
+    "timing": "CLOCK_MONOTONIC around the policy loop only; trace reading excluded",
+    "primary_outcome": "page_fault_rate_percent = simulated_page_faults / total_references * 100",
+    "os_fault_counters": false
+  }
+}
