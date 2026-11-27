@@ -84,6 +84,9 @@ Recorded in `configs/experiment-v2.1.json` and
 - **Retroactive provenance:** the git repository was initialized after the v1
   and v2 runs, so their 1,350 records carry `git_commit = not-a-git-repo`. No
   commit identifies the code that produced them; they must not be reported.
+- **Final text corrections** (no-op mixed claim, boundary limitations, title,
+  effect-size framing, interpretation notes) are tagged `v2.1.3`. The raw data
+  and simulator code remain exactly those of `v2.1.2`.
 
 ## Inferential model (revised 2026-11-27)
 

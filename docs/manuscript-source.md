@@ -295,7 +295,10 @@ segments FIFO faults were 994, 1000, 994, 994, 996, 998, 1000, 997, 997, 997,
 faults were 1991, 2000, 1988, 1988, 1988, 1990, 2000, 1992, 1988, 1992, 1992,
 1991 and 2000 (about 1992). Clock intermediate. This path dependence, not
 policy quality, explains the 15-frame result. The mixed workload should not be
-used to rank the algorithms.
+used to rank the algorithms. At 3 frames two comparisons are also formally
+significant after Holm correction but practically zero (LRU − FIFO = +0.011 pp,
+Clock − LRU = −0.0125 pp); these reflect tiny trace-to-trace noise and must not
+be reported as differences.
 
 ### Locality
 
@@ -319,9 +322,10 @@ used to rank the algorithms.
 
 Full timing values and SDs are in `descriptive_stats.csv` and
 `descriptive_summary.json`. **Timing is environment-specific and secondary.**
-For the same locality condition, the earlier local run measured about 0.86 ms
-while the Docker run measures about 1.85 ms — roughly a 2× difference caused by
-the execution environment, not by the paging policy. Values above are means;
+For the same locality condition, the earlier local run from the **superseded v2
+dataset** measured about 0.86 ms while the Docker run measures about 1.85 ms —
+roughly a 2× difference caused by the execution environment, not by the paging
+policy. Values above are means;
 rotated order reduces but does not eliminate order-related bias. Timing must
 not be presented as a measure of policy quality, and comparisons are only
 meaningful within the Docker environment.

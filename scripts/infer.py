@@ -119,6 +119,7 @@ def paired_condition_analysis(frame, response, response_label):
                 "ci95_high": None,
                 "cohens_dz": None,
                 "status": None,
+                "interpretation_note": "",
             }
             if distinct_hashes < 2 or n < 2:
                 row["status"] = "boundary: identical traces across repetitions (effective n=1)"
@@ -148,6 +149,16 @@ def paired_condition_analysis(frame, response, response_label):
                                                 method="holm")
         table.loc[valid, "p_holm"] = corrected
         table.loc[valid, "significant_after_holm"] = reject
+
+    if response == "page_fault_rate_percent":
+        artifact = (table["workload"] == "mixed") & (table["frames"] == 15)
+        table.loc[artifact, "interpretation_note"] = (
+            "trace-construction artifact (path dependence); not evidence about ranking")
+        trivial = ((table["workload"] == "mixed") & (table["frames"] == 3)
+                   & table["significant_after_holm"].fillna(False)
+                   & (table["mean_difference"].abs() < 0.05))
+        table.loc[trivial, "interpretation_note"] = (
+            "practically zero difference despite Holm significance")
     return table
 
 
@@ -263,9 +274,11 @@ def main():
         "# Inferential output\n\n"
         "Primary inference is in `paired_by_condition.csv` (fault rate) and "
         "`paired_timing_by_condition.csv` (log time), each Holm-corrected across "
-        "all tested comparisons. Cells with one distinct trace across repetitions "
-        "are listed in `boundary_cells.csv` and are not tested. The likelihood-ratio "
-        "test in `diagnostics.json` uses ML fits; the REML model summaries are "
+        "all tested comparisons. The `interpretation_note` column flags "
+        "practically zero differences and the mixed/15-frame trace-construction "
+        "artifact. Cells with one distinct trace across repetitions are listed in "
+        "`boundary_cells.csv` and are not tested. The likelihood-ratio test in "
+        "`diagnostics.json` uses ML fits; the REML model summaries are "
         "supplementary only. See `model_spec.json` for the approved specification.\n",
         encoding="utf-8")
 
