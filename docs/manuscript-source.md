@@ -1,4 +1,4 @@
-# Manuscript source notes — FIFO, LRU and Clock under memory-constrained containerized workloads
+# Manuscript source notes — Simulation-Based Comparison of FIFO, LRU and Clock Page Replacement under Synthetic Workloads (Docker-executed)
 
 > **Purpose.** A single, verified source for drafting the manuscript. It is not
 > the paper itself and makes no claim beyond what was actually run. Every
@@ -12,19 +12,23 @@
 
 ## 1. Research identity, objective and scope
 
-**Working title.** An Experimental Evaluation of FIFO, LRU, and Clock Page
-Replacement Algorithms under Memory-Constrained Containerized Workloads.
+**Working title.** Simulation-Based Comparison of FIFO, LRU and Clock Page
+Replacement under Synthetic Workloads (Docker-executed).
+
+**Keywords.** page replacement; FIFO; LRU; Clock; simulation; synthetic traces;
+Docker (execution environment only).
 
 **Area.** Operating systems, memory management, algorithm evaluation,
-containerized experimentation, performance measurement.
+simulation-based experimentation, performance measurement.
 
 **Core idea.** Implement FIFO, LRU and Clock as user-space simulators in C,
 generate deterministic memory-reference traces, run identical traces through
 each algorithm at controlled logical frame capacities, and compare simulated
-page-fault behaviour in a documented container environment.
+page-fault behaviour. Docker supplies the execution environment only; no
+container or OS-level paging metrics were collected.
 
-**General objective.** Compare the three algorithms under controlled workloads
-and logical capacities using a repeatable execution environment.
+**General objective.** Compare the three algorithms under controlled synthetic
+workloads and logical capacities using a repeatable execution environment.
 
 **Research questions.**
 
@@ -32,7 +36,9 @@ and logical capacities using a repeatable execution environment.
    across the selected workloads?
 2. Does relative performance vary with logical frame capacity?
 3. How do workload access patterns affect observed differences?
-4. What execution-time differences are observed in the selected container environment?
+4. What execution-time differences are observed when the simulators are run in
+   the documented Docker environment (execution environment only; no container
+   or OS paging metrics were collected)?
 
 ### 1.1 Conceptual distinction — must be preserved in the paper
 
@@ -76,28 +82,42 @@ Generator: `scripts/generate_trace.py`, rules version 2.1. All rules use
 | Sequential | page = (start_page + i) mod span | span = 10 |
 | Random | one seeded `randrange(span)` draw per reference | span = 12 |
 | Looping | page = (start_page + i mod loop_size) mod span | span = 12, loop_size = 8 |
-| Mixed | segments of `segment_length`; pattern chosen per segment by seeded RNG; sequential and looping **reset their local index at each segment boundary** (v2.1) | span = 20, loop_size = 8, segment_length = 2000 |
+| Mixed | segments of `segment_length`; pattern chosen per segment by seeded RNG; v2.1 uses a per-segment local index, but this is a **no-op** for the approved parameters (segment offsets are multiples of 2000, span 20 and loop size 8), so mixed traces are byte-identical to v2. Simulator cache state is **not** reset between segments. | span = 20, loop_size = 8, segment_length = 2000 |
 | Locality | with probability `hot_prob`, draw from a hot set of `hot_set_size` pages; otherwise draw uniformly from span | span = 40, hot_set_size = 4, hot_prob = 0.8 |
 
 `start_page = 0` for all workloads. Each trace contains 100,000 page IDs, one
 per line. Blank lines and `#` comments are ignored by the simulator.
 
-Two workload caveats: uniform **random** behaves as a null/boundary condition
-because the page space far exceeds capacity, producing almost no useful
-reuse; **locality** is a skewed hot-set workload, not alternating hot/cold
-phases. Neither should be over-interpreted.
+Three workload caveats, stated plainly:
+
+- **Random** is a validity check, not a comparison condition. Under uniform
+  i.i.d. references over N pages with F frames, the expected fault rate is about
+  `1 − F/N` for every policy. With span N = 12 and F = 3, that is 75%; observed
+  rates were 75.002% (FIFO), 74.985% (LRU) and 74.995% (Clock). This confirms
+  the simulator behaves as expected; it is not evidence about policy quality.
+- **Locality** is i.i.d. with skewed popularity (80% draws from a 4-page hot
+  set), with **no temporal phases**. Under this trace model the expected
+  ordering is LRU < Clock < FIFO; the observed ordering is the expected result,
+  not a surprising finding.
+- **Sequential** and **looping** are deterministic. Across the 10 seeded runs
+  each has only **one distinct trace hash** (effective n = 1), so they are
+  descriptive boundary conditions only. The phrase "10 repetitions" does not
+  mean 10 independent replicates for these two workloads.
 
 ### 2.3 Experimental design
 
 - Algorithms: FIFO, LRU, Clock (3).
 - Workloads: sequential, random, looping, mixed, locality (5).
 - Logical frame capacities: 3, 5, 8, 10, 15 (5).
-- Repetitions: 10.
-- Total runs: 3 × 5 × 5 × 10 = **750**.
+- Seeded runs per condition: 10 (these are independent traces only for the
+  stochastic workloads random, mixed and locality; sequential and looping are
+  deterministic and yield one distinct trace across all 10 seeds, effective
+  n = 1).
+- Total runs: 3 × 5 × 5 × 10 = **750 seeded runs**.
 - Seed rule: `seed = base_seed + workload_index × 1000 + repetition`, with
   `base_seed = 20261126`, repetitions 1-based.
-- One trace per workload × repetition, shared by all algorithms and all frame
-  counts — the matched/paired unit.
+- One trace per workload × seeded run, shared by all algorithms and all frame
+  counts — the matched/paired unit for stochastic workloads.
 - **Run order rotated** by `(workload_index + repetition + frame_index) mod 3`
   so timing is not systematically confounded with algorithm order. Three
   distinct orders occurred (249, 249 and 252 runs). Each record stores
@@ -186,8 +206,9 @@ frames; unknown algorithm; missing argument; unknown argument. All passed.
    carries `git_commit = not-a-git-repo`.
 4. **v2.1 (approved 2026-11-27).** `configs/experiment-v2.1.json` and tag
    `v2.1.2`: Docker execution with applied limits, rotated run order, generator
-   v2.1 with reset mixed segments, git provenance in every record, and corrected
-   inference. Full run: **750 Docker runs, 0 failures**. All records verified
+   v2.1 with git provenance in every record and corrected inference. The mixed
+   indexing change was a no-op (byte-identical traces to v2). Full run:
+   **750 Docker runs, 0 failures**. All records verified
    for invariant, trace SHA-256, unique run IDs, image digest and commit/tag.
 5. **Statistical model (approved 2026-11-26; revised 2026-11-27).** The revised
    specification is in §5 and `results/experiment-v2.1/processed/inferential/model_spec.json`.
@@ -203,7 +224,9 @@ OPT (Belady) baseline was deliberately deferred and is not part of this protocol
 
 ## 4. Descriptive results (approved v2.1 run)
 
-Mean fault rate (%) with SD in parentheses, n = 10 repetitions per cell.
+Mean fault rate (%) with SD in parentheses across 10 seeded runs per cell.
+For deterministic sequential/looping workloads these are one trace (effective
+n = 1) and the SD reflects seed-independent zero variance, not replication.
 Docker execution does not change deterministic fault counts, so fault-rate
 values match v2; timing values come from the Docker runs.
 Machine-readable table: `results/experiment-v2.1/processed/descriptive_stats.csv`.
@@ -253,6 +276,27 @@ algorithms coincide. Their ten repetitions use one identical trace each
 | 10 | 50.626 (7.571) | 50.636 (7.578) | 50.642 (7.574) |
 | 15 | 27.724 (4.771) | 42.596 (6.785) | 42.056 (6.692) |
 
+#### Mixed-workload artifact at 15 frames (do not use in conclusions)
+
+At 15 frames the mixed table shows FIFO at 27.724% versus LRU 42.596% and
+Clock 42.056% — paired differences of **+14.873 pp (LRU − FIFO)** and
+**+14.333 pp (Clock − FIFO)**, both statistically significant after Holm
+correction (p ≈ 5e−6; 95% CIs [12.48, 17.27] and [12.06, 16.60]). These are
+**a trace-construction artifact, not evidence that FIFO is better**.
+
+Reason: the mixed trace hands cache state from one segment to the next; it is
+not reset. A cyclic sequential scan over 20 pages with 15 frames faults on
+every reference from a cold FIFO start, but when the preceding segment is
+random, FIFO's queue order is scrambled relative to the scan order and it
+faults only about half the time in the following sequential segment; LRU stays
+near 100% faults in those segments. Evidence from `mixed_rep1`: in sequential
+segments FIFO faults were 994, 1000, 994, 994, 996, 998, 1000, 997, 997, 997,
+998, 997 and 1000 out of 2000 references (about 997 on average), while LRU
+faults were 1991, 2000, 1988, 1988, 1988, 1990, 2000, 1992, 1988, 1992, 1992,
+1991 and 2000 (about 1992). Clock intermediate. This path dependence, not
+policy quality, explains the 15-frame result. The mixed workload should not be
+used to rank the algorithms.
+
 ### Locality
 
 | Frames | FIFO | LRU | Clock |
@@ -274,8 +318,13 @@ algorithms coincide. Their ten repetitions use one identical trace each
 | 15 | 3.329 | 4.201 | 3.340 |
 
 Full timing values and SDs are in `descriptive_stats.csv` and
-`descriptive_summary.json`. Rotated order reduces, but does not entirely
-remove, order-related timing bias; timing is a secondary outcome.
+`descriptive_summary.json`. **Timing is environment-specific and secondary.**
+For the same locality condition, the earlier local run measured about 0.86 ms
+while the Docker run measures about 1.85 ms — roughly a 2× difference caused by
+the execution environment, not by the paging policy. Values above are means;
+rotated order reduces but does not eliminate order-related bias. Timing must
+not be presented as a measure of policy quality, and comparisons are only
+meaningful within the Docker environment.
 
 ---
 
@@ -284,13 +333,14 @@ remove, order-related timing bias; timing is a secondary outcome.
 ### 5.1 Primary method
 
 The primary inference is a **per-condition paired analysis**. Within each
-workload × frame cell, the 10 repetitions are independent traces, and all
-three algorithms process each trace. For each pair, the 10 paired differences
-are analysed with a one-sample t-test:
+workload × frame cell, the 10 seeded runs are independent traces **only for
+the stochastic workloads** (random, mixed, locality); all three algorithms
+process each trace. For each pair, the 10 paired differences are analysed with
+a one-sample t-test:
 
 ```
 d_i   = rate(pair member B, trace i) − rate(pair member A, trace i)
-mean  = Σd_i / n            n = 10 independent traces
+mean  = Σd_i / n            n = 10 independent traces (stochastic workloads only)
 sd    = sample SD of d_i
 CI95  = mean ± t(0.975, n−1) × sd / √n
 dz    = mean / sd
@@ -323,18 +373,26 @@ frame capacity, so per-condition results are the ones to interpret.
 
 ### 5.3 Condition-specific paired results — locality workload
 
-| Frames | LRU − FIFO (pp) | Holm p | Clock − FIFO (pp) | Holm p | Clock − LRU (pp) | Holm p |
-|---|---|---|---|---|---|---|
-| 3 | −2.380 | 2.0e−13 | −0.466 | 1.0e−08 | +1.915 | 7.2e−14 |
-| 5 | −7.915 | 5.0e−18 | −2.944 | 8.1e−17 | +4.971 | 5.1e−16 |
-| 8 | −8.759 | 5.4e−19 | −5.522 | 5.9e−17 | +3.237 | 3.2e−17 |
-| 10 | −6.994 | 2.6e−18 | −5.449 | 1.4e−17 | +1.545 | 1.6e−13 |
-| 15 | −3.805 | 3.6e−16 | −3.628 | 1.6e−15 | +0.177 | 7.2e−06 |
+Effect sizes and 95% confidence intervals are reported first; p-values are
+secondary.
+
+| Frames | LRU − FIFO, pp (95% CI) | Clock − FIFO, pp (95% CI) | Clock − LRU, pp (95% CI) |
+|---|---|---|---|
+| 3 | −2.380 [−2.436, −2.325] | −0.466 [−0.502, −0.429] | +1.915 [+1.875, +1.954] |
+| 5 | −7.915 [−7.970, −7.860] | −2.944 [−2.972, −2.916] | +4.971 [+4.912, +5.029] |
+| 8 | −8.759 [−8.806, −8.711] | −5.522 [−5.573, −5.471] | +3.237 [+3.209, +3.264] |
+| 10 | −6.994 [−7.039, −6.948] | −5.449 [−5.492, −5.406] | +1.545 [+1.510, +1.580] |
+| 15 | −3.805 [−3.848, −3.761] | −3.628 [−3.677, −3.579] | +0.177 [+0.147, +0.206] |
 
 All 15 locality comparisons survive Holm correction across the 42-comparison
-family. Full results, including CIs and Cohen's dz, are in
+family; Holm p-values range from about 1e−18 to 7e−6. The very small p-values
+arise because trace-to-trace noise is tiny (SDs around 0.13–0.28 fault-rate
+points), not because the effects are large in absolute terms. Standardised
+effect sizes (Cohen's dz) are correspondingly large and should be read with
+the unstandardised intervals above. Full results are in
 `paired_by_condition.csv`; timing results are in
-`paired_timing_by_condition.csv`.
+`paired_timing_by_condition.csv`. The expected ordering under this i.i.d.
+skewed-popularity trace model is LRU < Clock < FIFO.
 
 ### 5.4 Diagnostics
 
@@ -355,22 +413,33 @@ family. Full results, including CIs and Cohen's dz, are in
 - The study evaluates user-space simulations; it does not model page tables,
   TLB, swapping, kernel reclaim, file-backed page cache or storage I/O, and it
   does not establish which policy the Linux kernel or Docker uses internally.
-- Synthetic traces are controlled inputs and may not represent real workloads.
+- Only synthetic traces were used; they are controlled inputs and may not
+  represent real workloads. Scale is small: 3–15 logical frames and page spans
+  of 8–40. No OPT (Belady) baseline was included, so distance from optimal
+  cannot be reported.
 - The primary outcome is a simulated fault count/rate, not Linux minor/major
-  faults or Docker/cgroup memory events.
-- Do not claim any algorithm is universally best. Within the approved v2.1
-  conditions, LRU had the lowest simulated fault rates in the locality
-  workload at moderate capacities (about 7–9 percentage points below FIFO),
-  with Clock intermediate. These are condition-specific results.
-- Sequential and looping workloads are boundary conditions with effective
-  n = 1 and no inferential test; random is a null condition; locality is a
-  skewed hot-set pattern, not phased behaviour.
-- Timing was measured inside Docker with rotated algorithm order; it remains
-  a secondary outcome and should not be presented as policy quality.
+  faults or Docker/cgroup memory events. No container or OS paging metrics
+  were collected; Docker is the execution environment only.
+- Do not claim any algorithm is universally best. In the locality workload,
+  LRU < Clock < FIFO is the **expected** ordering for an i.i.d. skewed-popularity
+  trace, and the observed 7–9 pp advantages at moderate capacities are
+  condition-specific, not a general ranking.
+- Random is a validity/sanity check (`1 − F/N`), not a comparison. Sequential
+  and looping are deterministic boundary conditions with effective n = 1: they
+  are descriptive only, are not tested, and no conclusion rests on inference
+  from them. The 10 seeded runs are not 10 independent replicates for these
+  workloads.
+- The mixed workload at 15 frames shows a FIFO advantage caused by segment
+  path dependence (documented above). This is a trace-construction artifact;
+  no conclusion that FIFO outperforms LRU or Clock may be drawn from it.
+- Timing is environment-specific (Docker values are roughly 2× the earlier
+  local values), mean-based, secondary, and not fully de-biased by rotation;
+  it is not a measure of policy quality.
 - The v1 and v2 datasets are superseded and lack a code commit hash; the
   manuscript must use v2.1 numbers only.
-- OPT baseline was deferred. A robustness analysis beyond the per-condition
-  paired tests would be a further model change needing approval.
+- Further robustness analyses or protocol changes (OPT baseline, phased
+  locality, reworked mixed segments, working-set-relative frame counts) need
+  separate approval and a new labelled run.
 
 ---
 

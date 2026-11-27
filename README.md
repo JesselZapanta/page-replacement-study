@@ -1,4 +1,4 @@
-# Research Project Brief: FIFO, LRU, and Clock Page Replacement under Containerized Workloads
+# Research Project Brief: Simulation-Based Comparison of FIFO, LRU and Clock Page Replacement under Synthetic Workloads (Docker-executed)
 
 > **Document purpose:** This README is the project handoff for an AI
 > coding agent or developer. It explains the research question,
@@ -15,13 +15,13 @@
 
 ### Working title
 
-**An Experimental Evaluation of FIFO, LRU, and Clock Page Replacement
-Algorithms under Memory-Constrained Containerized Workloads**
+**Simulation-Based Comparison of FIFO, LRU and Clock Page Replacement under
+Synthetic Workloads (Docker-executed)**
 
 ### Research area
 
 Operating systems, memory management, algorithm evaluation,
-containerized experimentation, and performance measurement.
+simulation-based experimentation, and performance measurement.
 
 ### Core idea
 
@@ -95,8 +95,9 @@ execution.
 -   Does the relative performance of the algorithms vary with logical
     page-frame capacity?
 -   How do workload access patterns affect the observed differences?
--   What execution-time and resource-use differences are observed when
-    the simulators run in the selected container environment?
+-   What execution-time differences are observed when the simulators run in
+    the documented Docker environment (execution environment only; no
+    container or OS paging metrics were collected)?
 
 The final wording of research questions and hypotheses should be
 confirmed with the research adviser and aligned with the final approved
@@ -158,8 +159,9 @@ rules and parameters.
 These values were approved on 2026-11-26, amended as v2 the same day, and
 amended again as v2.1 on 2026-11-27 (§12, `configs/experiment-v2.1.json`).
 The v2 pilot confirmed the settings produce meaningful variation; v2.1 adds
-Docker execution, rotated run order, reset mixed segments and corrected
-inference. The full history is recorded in `docs/decision-log.md`. Any
+Docker execution, rotated run order and corrected inference. The v2.1 mixed
+indexing change was a no-op, so mixed traces are byte-identical to v2. The full
+history is recorded in `docs/decision-log.md`. Any
 subsequent change must be documented in the experiment configuration and
 research log.
 
@@ -464,8 +466,8 @@ Baseline values were confirmed by the researcher on 2026-11-26 and used for
 the v1 run. They were amended the same day (v2) and again on 2026-11-27 by
 `configs/experiment-v2.1.json`, which is the **current approved protocol**:
 v2 added the `locality` workload and reduced spans; v2.1 executes in Docker
-with rotated algorithm order, resets mixed segments, records git provenance,
-and uses corrected inference. All other values below are unchanged. See
+with rotated algorithm order, records git provenance, and uses corrected
+inference. Its mixed-indexing change is a no-op. All other values below are unchanged. See
 `docs/decision-log.md`. OPT was deliberately deferred and is not part of this
 protocol.
 
@@ -510,7 +512,7 @@ Decisions are recorded in `docs/decision-log.md`.
 -   [ ] Finalize statistical analysis plan.
 -   [x] Run full experiment and analyze actual results (v1, v2, and current v2.1 in `results/experiment-v2.1/`).
 -   [x] Amend saturated workload parameters and re-run (v2, 2026-11-26).
--   [x] Address review: Docker execution, rotated order, mixed reset, git provenance, corrected inference (v2.1, 2026-11-27).
+-   [x] Address review: Docker execution, rotated order, git provenance, corrected inference (v2.1, 2026-11-27); mixed indexing change was a no-op.
 
 ## 14. Implementation quick reference (as built)
 

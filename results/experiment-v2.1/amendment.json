@@ -20,10 +20,11 @@
   "changes": [
     "All 750 runs executed inside Docker with memory/CPU limits applied",
     "Algorithm order rotated by (workload_index + repetition + frame_index) mod 3",
-    "Generator v2.1 resets mixed-segment sequential/looping state",
+    "Generator v2.1 uses per-segment local indexing for mixed sequential/looping, but this is a no-op: segment offsets are multiples of 2000, span 20 and loop size 8, so mixed traces are byte-identical to v2; simulator cache state is carried across segments",
     "Git commit and tag recorded in every raw record",
     "Inference uses ML likelihood-ratio and per-condition paired analysis with one Holm family"
   ],
   "retroactive_provenance_note": "Earlier v1 and v2 datasets were produced before the repository was initialized and carry git_commit='not-a-git-repo'. They are superseded; no commit identifies the code that produced them.",
-  "note": "OPT baseline deferred. Random is treated as a null/boundary condition; locality is a skewed hot-set workload, not alternating phases."
+  "note": "OPT baseline deferred. Random is treated as a null/boundary condition; locality is a skewed hot-set workload, not alternating phases.",
+  "text_corrections_2026_11_27": "Documentation-only correction: earlier wording claimed v2.1 reset mixed-segment state. It does not; the change is a no-op and the mixed fault-rate artifact is path dependence. Raw records and traces under results/experiment-v2.1/raw/ and /traces/ were not modified."
 }

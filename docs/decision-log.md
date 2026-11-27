@@ -13,7 +13,7 @@ records the current confirmed values.
 | Invalid input handling | Non-zero exit (2 bad arguments, 3 bad input, 4 simulation error, 5 output error) with a message on stderr | Follows README §7 |
 | Timing boundary | `CLOCK_MONOTONIC` starts after trace parsing and stops after the last policy call; trace I/O and generation excluded | Follows README §5/§8 |
 | Result record v1 | JSON with algorithm, frames, trace path, reference count, hits, simulated faults, fault rate, time ns, throughput, run id | Schema approved 2026-11-26 (§12); raw records enriched by the runner |
-| Trace generation | `sequential`, `random`, `looping`, `mixed`, `locality` rules in `scripts/generate_trace.py` (generator v2.1 resets mixed segments); seeded `random.Random`, parameters and SHA-256 written to a `.metadata.json` beside each trace | v1/v2 rules superseded; v2.1 approved 2026-11-27 |
+| Trace generation | `sequential`, `random`, `looping`, `mixed`, `locality` rules in `scripts/generate_trace.py` (generator v2.1); seeded `random.Random`, parameters and SHA-256 written beside each trace. The v2.1 mixed indexing change is a no-op: mixed traces are byte-identical to v2 | v1/v2 rules superseded; v2.1 approved 2026-11-27 |
 | Experimental factor values | Frames 3/5/8/10/15, length 100,000, 10 repetitions — current values in `configs/experiment-v2.1.json` | Approved 2026-11-26; v2.1 supersedes v2 and v1 for reporting |
 | Fair comparison | One trace per workload/repetition shared by all algorithms/frames; seed = base + workload index × 1000 + repetition; algorithm order rotated and recorded | Follows README §4; rotation added and approved 2026-11-27 |
 | Docker execution | All 750 v2.1 runs in `page-replacement-study:latest`, base `ubuntu:26.04`, digest `sha256:0430529978c7517adaee53cb47234fa94c181d7977b7ea7e03339a5f264bab6f`, `--memory=512m --cpus=1`; in-image GCC 15.2.0 / Python 3.14.4 | Approved fixed environment setting, not an experimental factor; v1/v2 local runs superseded |
@@ -56,7 +56,9 @@ Pilot at 10,000 references confirmed the fix: fault rates now span ~0% to
 percentage points, with LRU lowest and FIFO highest.
 
 The full v2 experiment was executed on 2026-11-26: 750 runs (3 algorithms ×
-5 workloads × 5 frame counts × 10 repetitions), 0 failures. All records
+5 workloads × 5 frame counts × 10 seeded repetitions; for deterministic
+sequential/looping workloads these are the same trace, so not independent
+replicates), 0 failures. All records
 passed the invariant, fault-rate and trace SHA-256 checks. Output is in
 `results/experiment-v2/`; descriptive summaries cover 75 groups. This run and
 its local execution mode are now superseded by v2.1 below; the v1/v2 datasets
@@ -74,7 +76,7 @@ Recorded in `configs/experiment-v2.1.json` and
   and git commit/tag appear in every record.
 - Algorithm order rotated by `(workload_index + repetition + frame_index) mod 3`;
   three distinct orders occurred (249, 249, 252 runs).
-- Generator v2.1 resets mixed-segment sequential/looping state at each boundary.
+- Generator v2.1 uses per-segment local indexing for mixed sequential/looping, but this is **not** a state reset: segment offsets are multiples of 2000, span 20 and loop size 8, so the v2.1 mixed traces are byte-identical to v2 and simulator cache state carries across segments. The FIFO advantage at 15 frames is a trace-construction/path-dependence artifact, not evidence that FIFO is better.
 - Code state: commit `a4f37d6b59dc6a539523231e648c5f94991bdcde`, tag `v2.1.2`.
 - Result: 750 Docker runs, 0 failures; all invariant, trace-hash, image and
   provenance checks passed. v1 and v2 are superseded and remain only for

@@ -6,9 +6,14 @@ Generation rules (version 2.1), all reproducible from seed + parameters:
   random     : page = random.Random(seed).randrange(span), one draw per reference
   looping    : page = (start_page + (i % loop_size)) % span
   mixed      : split into segments of `segment_length`; for each segment choose
-               sequential/random/looping with the same seeded RNG and RESET the
-               pattern state at the segment boundary (v2.1): sequential and
-               looping both restart their local index at zero.
+               sequential/random/looping with the same seeded RNG. The v2.1
+               code uses a per-segment local index for sequential/looping;
+               this is a NO-OP for the approved parameters because segment
+               offsets are multiples of 2000, itself a multiple of span 20 and
+               loop size 8, so all v2.1 mixed traces are byte-identical to v2.
+               Simulator cache state is NOT reset between segments: it carries
+               over, producing the FIFO path dependence documented in
+               docs/manuscript-source.md.
   locality   : with probability `hot_prob` draw from a hot set of
                `hot_set_size` pages (starting at start_page), otherwise draw
                uniformly from `span`; both decisions use the seeded RNG.

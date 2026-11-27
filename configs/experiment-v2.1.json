@@ -6,11 +6,11 @@
     "supersedes": "configs/experiment-v2.json",
     "date": "2026-11-27",
     "approved_by": "researcher (project owner)",
-    "reason": "Address the review findings: runs must actually execute in Docker, algorithm order must be rotated to avoid timing confound, mixed-trace segments must reset state, git provenance must be recorded, and inference must use ML for the interaction test plus per-condition paired analysis.",
+    "reason": "Address the review findings: runs must actually execute in Docker, algorithm order must be rotated to avoid timing confound, git provenance must be recorded, and inference must use ML for the interaction test plus per-condition paired analysis. The v2.1 mixed-trace change was intended to reset segment state but is a no-op for the approved parameters.",
     "changes": [
       "execution.mode = docker; Docker memory limit and CPU allocation are now applied to every run",
       "Algorithm order rotated by (workload_index + repetition + frame_index) mod 3 and recorded per run",
-      "Generator v2.1: mixed segments reset their sequential/looping state at segment boundaries",
+      "Generator v2.1 changed mixed sequential/looping indexing to a per-segment local index; this is a no-op because segment offsets are multiples of both span 20 and loop size 8, so mixed traces are byte-identical to v2 and cache state carries across segments",
       "Git commit and tag recorded in every raw record",
       "Inference: ML likelihood-ratio test, per-condition paired tests, one Holm family, effective-n boundary rule"
     ],
