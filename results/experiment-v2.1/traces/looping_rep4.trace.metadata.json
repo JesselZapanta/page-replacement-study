@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-27T01:46:08+00:00",
+  "generator_version": "2.1",
+  "python_version": "3.14.4",
+  "workload": "looping",
+  "length": 100000,
+  "seed": 20263130,
+  "parameters": {
+    "start_page": 0,
+    "span": 12,
+    "loop_size": 8
+  },
+  "trace_path": "/home/jessel_zapanta/projects/page-replacement-study/results/experiment-v2.1/traces/looping_rep4.trace",
+  "trace_sha256": "ffe33de980ddf41916f3f14127bfe18b86b6e4dd6e2848879014278eca8015c3"
+}

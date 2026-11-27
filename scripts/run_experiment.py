@@ -55,16 +55,17 @@ def resolve_simulator(spec):
 
 def run_command(config, simulator, trace_path, algorithm, frames, run_id):
     exec_cfg = config["execution"]
-    rel_sim = str(simulator.relative_to(REPO_ROOT))
     rel_trace = str(trace_path.relative_to(REPO_ROOT))
     flags = ["--algorithm", algorithm, "--frames", str(frames),
              "--trace", rel_trace, "--run-id", run_id]
     if exec_cfg.get("mode") == "docker":
         memory = exec_cfg["docker_memory_limit"]
         cpus = exec_cfg["docker_cpus"]
+        # The image ENTRYPOINT is already /src/build/simulator, so no binary
+        # path is passed after the image name.
         return ["docker", "run", "--rm", f"--memory={memory}", f"--cpus={cpus}",
                 "-v", f"{REPO_ROOT}:/work", "-w", "/work",
-                exec_cfg["docker_image"], rel_sim, *flags]
+                exec_cfg["docker_image"], *flags]
     return [str(simulator), *flags]
 
 
